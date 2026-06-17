@@ -23,12 +23,12 @@ class ParticipantUser(HttpUser):
             "consent_data": "on"
         }
         
-        response = self.client.post("/consent", data=consent_data, catch_response=True)
-        if response.status_code in [200, 302]:
-            response.success()
-        else:
-            response.failure(f"Consent failed with {response.status_code}")
-            return
+        with self.client.post("/consent", data=consent_data, catch_response=True) as response:
+            if response.status_code in [200, 302]:
+                response.success()
+            else:
+                response.failure(f"Consent failed with {response.status_code}")
+                return
             
         # 3. Load the tutorial
         self.client.get("/tutorial")
