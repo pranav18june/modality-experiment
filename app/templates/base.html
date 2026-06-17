@@ -32,6 +32,7 @@
           <span class="icon-moon">🌙</span>
         </button>
         
+        {% if progress_stage is defined %}
         <div class="progress-wrap">
           {% set pct = 0 %}
           {% if progress_stage == 0 %}{% set pct = 5 %}{% set lbl = 'Consent' %}
@@ -50,6 +51,7 @@
           </div>
         </div>
         <a href="/" class="btn-exit" onclick="return confirm('Are you sure you want to exit the study? This will forfeit your completion reward.');">Exit study</a>
+        {% endif %}
       </div>
     </div>
   </header>
