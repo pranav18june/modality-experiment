@@ -1028,3 +1028,47 @@ textarea { resize: vertical; min-height: 80px; }
 @keyframes fall {
   to { transform: translateY(100vh) rotate(720deg); }
 }
+
+/* ── Loading Overlay ────────────────────────────────────────── */
+#loading-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: var(--bg-base);
+  z-index: 9999;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+#loading-overlay.active {
+  display: flex;
+}
+.loading-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  animation: pulse 1.5s infinite;
+}
+.loading-img {
+  width: 300px;
+  max-width: 80%;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  animation: bounce 2s infinite ease-in-out;
+  box-shadow: var(--shadow-md);
+}
+.loading-caption {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+}
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}

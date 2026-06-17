@@ -89,9 +89,29 @@
     </div>
 
   </form>
+<div id="loading-overlay">
+  <div class="loading-title">Submitting...</div>
+  <img src="{{ url_for('static', filename='img/cat_eating.png') }}" class="loading-img" alt="Cat eating food"/>
+  <div class="loading-caption">The cat is having her food. Please wait for a while...</div>
 </div>
 
 <script>
+// ── Loading overlay for form submission ───────────────────────────────
+document.getElementById('comp-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const form = this;
+  const btn = form.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  
+  // Show the loading overlay
+  document.getElementById('loading-overlay').classList.add('active');
+  
+  // Wait 3 seconds to let the user see the cute cat animation
+  setTimeout(() => {
+    form.submit();
+  }, 3000);
+});
+
 // ── Comprehension charts ─────────────────────────────────────────────
 (function() {
   const days = Array.from({length: 60}, (_, i) => i + 1);
