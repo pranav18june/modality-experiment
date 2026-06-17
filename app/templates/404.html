@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}404 - Page Not Found{% endblock %}
+
+{% block content %}
+<div class="card" style="text-align: center; max-width: 800px; margin: 40px auto; padding: 40px;">
+  <h1 style="font-size: 2.5rem; margin-bottom: 20px; font-weight: 800; color: var(--text-primary); text-transform: uppercase;">
+    You've Reached The <br/>
+    <span style="color: var(--accent);">404 Error Page</span>
+  </h1>
+
+  <hr style="border: none; border-top: 2px dashed var(--border); margin: 30px 0;"/>
+
+  <p style="font-size: 1.25rem; color: var(--accent); font-weight: 600; margin-bottom: 16px;">
+    Well, this is slightly embarrassing, it appears the page you are looking for has been stolen by kittens.
+  </p>
+
+  <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 40px;">
+    To get back to where you were either click on your back button, <a href="/" style="color: var(--accent); text-decoration: underline;">go home</a>, or get in touch to tell us about this heinous act.
+  </p>
+
+  <img src="{{ url_for('static', filename='img/kitten_404.png') }}" alt="Kitten peeking through a torn hole" style="max-width: 100%; height: auto; border-radius: var(--radius-md); mix-blend-mode: multiply;"/>
+</div>
+{% endblock %}

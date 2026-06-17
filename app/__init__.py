@@ -38,4 +38,9 @@ def create_app():
     def handle_generic_exception(error):
         return f"<h2>Unhandled Exception</h2><pre>{traceback.format_exc()}</pre>", 500
 
+    @app.errorhandler(404)
+    def page_not_found(e):
+        from flask import render_template
+        return render_template('404.html'), 404
+
     return app
