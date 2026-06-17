@@ -1,6 +1,7 @@
 import os
 from flask import Flask
 from .models import init_db
+from pymongo.errors import ServerSelectionTimeoutError
 
 
 def create_app():
@@ -22,5 +23,14 @@ def create_app():
 
     from .routes import bp
     app.register_blueprint(bp)
+
+    @app.errorhandler(ServerSelectionTimeoutError)
+    def handle_mongo_timeout(error):
+        return (
+            "<h2>Database Connection Timeout</h2>"
+            "<p>The application could not connect to MongoDB Atlas.</p>"
+            "<p><strong>If you are on Vercel:</strong> You MUST go to your MongoDB Atlas Dashboard > Security > Network Access and click <em>Add IP Address -> Allow Access From Anywhere (0.0.0.0/0)</em>. Vercel's IP addresses change dynamically and will be blocked otherwise.</p>", 
+            500
+        )
 
     return app
