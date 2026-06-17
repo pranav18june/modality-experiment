@@ -172,21 +172,28 @@
         </p>
 
         <!-- ROP Slider -->
+        {% set rop_min = scenario.slider_rop_range[0] | float %}
+        {% set rop_max = scenario.slider_rop_range[1] | float %}
+        {% set rop_ai  = scenario.ai_suggested_rop_pct | float %}
+        {% set rop_pct = ((rop_ai - rop_min) / (rop_max - rop_min)) * 100 %}
         <div class="slider-group">
           <div class="slider-header">
             <label for="rop-slider">Reorder Point (ROP) Adjustment</label>
-            <span class="slider-current-val" id="rop-display">
+            <span class="slider-current-val" id="rop-display" style="color: var(--red);">
               +{{ scenario.ai_suggested_rop_pct | int }}%
             </span>
           </div>
-          <input type="range" class="exp-slider" id="rop-slider"
-                 name="rop_adjustment"
-                 min="{{ scenario.slider_rop_range[0] | int }}"
-                 max="{{ scenario.slider_rop_range[1] | int }}"
-                 value="{{ scenario.ai_suggested_rop_pct | int }}"
-                 step="1"
-                 data-display="rop-display"
-                 data-ai="{{ scenario.ai_suggested_rop_pct | int }}">
+          <div class="slider-track-wrap">
+            <input type="range" class="exp-slider" id="rop-slider"
+                   name="rop_adjustment"
+                   min="{{ scenario.slider_rop_range[0] | int }}"
+                   max="{{ scenario.slider_rop_range[1] | int }}"
+                   value="{{ scenario.ai_suggested_rop_pct | int }}"
+                   step="1"
+                   data-display="rop-display"
+                   data-ai="{{ scenario.ai_suggested_rop_pct | int }}">
+            <div class="ai-slider-dot" style="left: {{ rop_pct }}%;"></div>
+          </div>
           
           <div class="slider-context" style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
             <div style="font-size: 0.75rem; color: var(--text-muted);">
@@ -200,21 +207,28 @@
         </div>
 
         <!-- SS Slider -->
+        {% set ss_min = scenario.slider_ss_range[0] | float %}
+        {% set ss_max = scenario.slider_ss_range[1] | float %}
+        {% set ss_ai  = scenario.ai_suggested_ss_pct | float %}
+        {% set ss_pct = ((ss_ai - ss_min) / (ss_max - ss_min)) * 100 %}
         <div class="slider-group">
           <div class="slider-header">
             <label for="ss-slider">Safety Stock (SS) Adjustment</label>
-            <span class="slider-current-val" id="ss-display">
+            <span class="slider-current-val" id="ss-display" style="color: var(--red);">
               +{{ scenario.ai_suggested_ss_pct | int }}%
             </span>
           </div>
-          <input type="range" class="exp-slider" id="ss-slider"
-                 name="ss_adjustment"
-                 min="{{ scenario.slider_ss_range[0] | int }}"
-                 max="{{ scenario.slider_ss_range[1] | int }}"
-                 value="{{ scenario.ai_suggested_ss_pct | int }}"
-                 step="1"
-                 data-display="ss-display"
-                 data-ai="{{ scenario.ai_suggested_ss_pct | int }}">
+          <div class="slider-track-wrap">
+            <input type="range" class="exp-slider" id="ss-slider"
+                   name="ss_adjustment"
+                   min="{{ scenario.slider_ss_range[0] | int }}"
+                   max="{{ scenario.slider_ss_range[1] | int }}"
+                   value="{{ scenario.ai_suggested_ss_pct | int }}"
+                   step="1"
+                   data-display="ss-display"
+                   data-ai="{{ scenario.ai_suggested_ss_pct | int }}">
+            <div class="ai-slider-dot" style="left: {{ ss_pct }}%;"></div>
+          </div>
           
           <div class="slider-context" style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
             <div style="font-size: 0.75rem; color: var(--text-muted);">
