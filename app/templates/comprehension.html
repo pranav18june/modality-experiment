@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% set progress_stage = 4 %}
+{% block title %}Comprehension Check — Modality Study{% endblock %}
+
+{% block content %}
+<div class="card card--wide">
+  <div class="card-header">
+    <h1>Final Comprehension Check</h1>
+    <p class="subtitle">5 short questions about the study. Estimated time: 7 minutes. <strong>Do not go back</strong> to earlier screens.</p>
+  </div>
+
+  <form method="POST" action="{{ url_for('main.comprehension') }}" id="comp-form">
+
+    <!-- ── Item 1: MCQ — which chart shows a disruption ─────── -->
+    <div class="comp-item">
+      <p class="comp-q"><strong class="highlight-red">Question 1 of 5.</strong> Three demand trajectories are shown below. Which one (A, B, or C) most clearly represents a supply chain disruption?</p>
+      <div class="comp-charts-row">
+        <div class="comp-chart-wrap">
+          <div id="comp-chart-A" class="comp-chart"></div>
+          <span class="comp-chart-label">Option A</span>
+        </div>
+        <div class="comp-chart-wrap">
+          <div id="comp-chart-B" class="comp-chart"></div>
+          <span class="comp-chart-label">Option B</span>
+        </div>
+        <div class="comp-chart-wrap">
+          <div id="comp-chart-C" class="comp-chart"></div>
+          <span class="comp-chart-label">Option C</span>
+        </div>
+      </div>
+      <div class="radio-row">
+        <label><input type="radio" name="item_1" value="A" required> Option A</label>
+        <label><input type="radio" name="item_1" value="B"> Option B</label>
+        <label><input type="radio" name="item_1" value="C"> Option C</label>
+      </div>
+    </div>
+
+    <!-- ── Item 2: Numerical interpretation ─────────────────── -->
+    <div class="comp-item">
+      <p class="comp-q"><strong class="highlight-red">Question 2 of 5.</strong> An AI system reports a normalised residual of <strong class="highlight-accent">2.8σ</strong> during a demand window. The disruption threshold is set at <strong class="highlight-accent">2.0σ</strong>. What should the disruption classification be?</p>
+      <div class="radio-row">
+        <label><input type="radio" name="item_2" value="PASS" required> PASS (no disruption detected)</label>
+        <label><input type="radio" name="item_2" value="FAIL"> FAIL (disruption threshold breached)</label>
+        <label><input type="radio" name="item_2" value="UNCLEAR"> UNCLEAR (insufficient data)</label>
+      </div>
+    </div>
+
+    <!-- ── Item 3: Open text reasoning ──────────────────────── -->
+    <div class="comp-item">
+      <p class="comp-q"><strong class="highlight-red">Question 3 of 5.</strong> In 1–2 sentences, explain <em>why</em> an AI system recommended a <strong class="highlight-accent">high shock-cut percentage</strong> for a severe, clear-onset disruption scenario (such as a supplier factory shutdown).</p>
+      <textarea name="item_3" rows="4" placeholder="Write your explanation here…" required
+                class="comp-textarea"></textarea>
+    </div>
+
+    <!-- ── Item 4: Safety stock calculation ─────────────────── -->
+    <div class="comp-item">
+      <p class="comp-q"><strong class="highlight-red">Question 4 of 5.</strong> Using the formula <code>SS = z × σ<sub>d</sub> × √L</code>, calculate the safety stock for the following parameters:</p>
+      <ul class="calc-params">
+        <li>Service level factor <strong>z = 1.645</strong></li>
+        <li>Daily demand standard deviation <strong>σ<sub>d</sub> = 14 units</strong></li>
+        <li>Lead time <strong>L = 10 days</strong></li>
+      </ul>
+      <p>Round your answer to the nearest whole number.</p>
+      <div class="inline-input-wrap">
+        <input type="number" name="item_4" placeholder="Enter answer…" required
+               min="0" max="500" step="1" class="inline-input">
+        <span>units</span>
+      </div>
+      <p class="comp-hint">Hint: √10 ≈ 3.162</p>
+    </div>
+
+    <!-- ── Item 5: Preferred modality reflection ─────────────── -->
+    <div class="comp-item">
+      <p class="comp-q"><strong class="highlight-red">Question 5 of 5.</strong> Across all three stages, which presentation format did you find <strong class="highlight-accent">most useful</strong> for making your inventory decisions, and why?</p>
+      <select name="item_5" required class="comp-select">
+        <option value="" disabled selected>Select a format…</option>
+        <option value="numerical">Numerical Statistics panel (numbers and metrics only)</option>
+        <option value="visual">Visual Dashboard (interactive chart)</option>
+        <option value="llm">AI Narrative (natural language explanation)</option>
+      </select>
+      <textarea name="item_5_reason" rows="3" placeholder="Briefly explain your choice…"
+                class="comp-textarea" style="margin-top:10px;"></textarea>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn--primary btn--lg">
+        Submit &amp; Complete Study →
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<script>
+// ── Comprehension charts ─────────────────────────────────────────────
+(function() {
+  const days = Array.from({length: 60}, (_, i) => i + 1);
+
+  // Option A: stable demand (no disruption)
+  const seriesA = days.map(d => 98 + 5 * Math.sin(2 * Math.PI * d / 30) + (Math.random() - 0.5) * 8);
+
+  // Option B: clear step-change disruption at day 35 ← CORRECT ANSWER
+  const seriesB = days.map(d => {
+    const base = 100 + (Math.random() - 0.5) * 12;
+    return d < 35 ? base : base * 1.55 + (Math.random() - 0.5) * 18;
+  });
+
+  // Option C: gradual linear trend (could be seasonal)
+  const seriesC = days.map(d => 90 + d * 0.3 + (Math.random() - 0.5) * 10);
+
+  const layout = {
+    margin:  {t: 10, b: 30, l: 35, r: 10},
+    height:  160,
+    showlegend: false,
+    xaxis:   {title: 'Day', color: '#94a3b8'},
+    yaxis:   {title: 'Units', color: '#94a3b8'},
+    paper_bgcolor: 'transparent',
+    plot_bgcolor:  '#0f1117',
+    font:    {color: '#94a3b8', size: 10},
+  };
+  const cfg = {responsive: true, displayModeBar: false};
+
+  Plotly.newPlot('comp-chart-A', [{x: days, y: seriesA, line: {color: '#3b82f6', width: 1.5}}], layout, cfg);
+  Plotly.newPlot('comp-chart-B', [
+    {x: days, y: seriesB, line: {color: '#3b82f6', width: 1.5}},
+    // Disruption window shading
+    {x: [35, 35, 60, 60], y: [60, 200, 200, 60],
+     fill: 'toself', fillcolor: 'rgba(239,68,68,0.12)', line: {width: 0},
+     hoverinfo: 'skip'},
+  ], layout, cfg);
+  Plotly.newPlot('comp-chart-C', [{x: days, y: seriesC, line: {color: '#3b82f6', width: 1.5}}], layout, cfg);
+})();
+</script>
+{% endblock %}

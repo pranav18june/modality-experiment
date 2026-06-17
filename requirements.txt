@@ -1,0 +1,9 @@
+flask>=3.0.0
+pandas>=2.2.3
+numpy>=1.26.4
+scipy>=1.15.2
+plotly>=6.0.0
+python-dotenv>=1.0.0
+pymongo>=4.7.0
+dnspython>=2.6.0
+gunicorn>=22.0.0

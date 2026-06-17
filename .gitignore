@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment variables — NEVER commit real secrets
+.env
+
+# SQLite database — no longer used, but exclude just in case
+data/experiment.db
+data/*.db
+
+# macOS
+.DS_Store
+
+# Vercel local dev
+.vercel/
+
+# IDE
+.vscode/
+.idea/
+
+# NOTE: data/scenarios.json IS intentionally committed.
+# It is deterministically generated (fixed seed=42) and required
+# by Vercel's read-only filesystem at runtime.

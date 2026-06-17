@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% set progress_stage = stage %}
+{% block title %}Stage {{ stage }} Complete — Trust Rating{% endblock %}
+
+{% block content %}
+<div class="card card--narrow">
+  <div class="card-header">
+    <h1>Stage {{ stage }} Complete</h1>
+    <p class="subtitle">
+      You just received AI recommendations in the
+      <strong>
+        {% if modality == "numerical" %}Numerical Statistics
+        {% elif modality == "visual" %}Visual Dashboard
+        {% else %}AI Narrative
+        {% endif %}
+      </strong> format.
+      Before continuing, please rate how much you trusted that format.
+    </p>
+  </div>
+
+  <form method="POST" action="{{ url_for('main.trust_rating', stage=stage) }}">
+
+    <div class="trust-section">
+      <p class="trust-intro">For each statement, select a number from 1 (Strongly Disagree) to 7 (Strongly Agree).</p>
+
+      <div class="trust-item">
+        <label>The AI recommendation I just saw was <strong>reliable</strong>.</label>
+        <div class="likert-scale">
+          {% for i in range(1, 8) %}
+          <label class="likert-item">
+            <input type="radio" name="trust_1" value="{{ i }}" {% if i == 4 %}checked{% endif %} required>
+            <span class="likert-num">{{ i }}</span>
+          </label>
+          {% endfor %}
+        </div>
+        <div class="likert-anchors">
+          <span>Strongly Disagree</span><span>Neutral</span><span>Strongly Agree</span>
+        </div>
+      </div>
+
+      <div class="trust-item">
+        <label>I felt <strong>confident</strong> using this recommendation to make my decisions.</label>
+        <div class="likert-scale">
+          {% for i in range(1, 8) %}
+          <label class="likert-item">
+            <input type="radio" name="trust_2" value="{{ i }}" {% if i == 4 %}checked{% endif %} required>
+            <span class="likert-num">{{ i }}</span>
+          </label>
+          {% endfor %}
+        </div>
+        <div class="likert-anchors">
+          <span>Strongly Disagree</span><span>Neutral</span><span>Strongly Agree</span>
+        </div>
+      </div>
+
+      <div class="trust-item">
+        <label>I would be willing to <strong>rely on this format</strong> in a real supply chain decision.</label>
+        <div class="likert-scale">
+          {% for i in range(1, 8) %}
+          <label class="likert-item">
+            <input type="radio" name="trust_3" value="{{ i }}" {% if i == 4 %}checked{% endif %} required>
+            <span class="likert-num">{{ i }}</span>
+          </label>
+          {% endfor %}
+        </div>
+        <div class="likert-anchors">
+          <span>Strongly Disagree</span><span>Neutral</span><span>Strongly Agree</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn--primary btn--lg">
+        {% if stage < 3 %}
+          Continue to Stage {{ stage + 1 }} →
+        {% else %}
+          Continue to Final Check →
+        {% endif %}
+      </button>
+    </div>
+
+  </form>
+</div>
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('form');
+  form.addEventListener('submit', (e) => {
+    const t1 = document.querySelector('input[name="trust_1"]:checked');
+    const t2 = document.querySelector('input[name="trust_2"]:checked');
+    const t3 = document.querySelector('input[name="trust_3"]:checked');
+    if (t1 && t2 && t3) {
+      if (t1.value === t2.value && t2.value === t3.value) {
+        if (!confirm('You have selected the same response for all items. Are you sure these accurately reflect your views?')) {
+          e.preventDefault();
+        }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+{% set progress_stage = stage %}
+{% block title %}Stage {{ stage }}, Scenario {{ position + 1 }} — Modality Study{% endblock %}
+
+{% block content %}
+<div class="task-layout">
+
+  <!-- ── Left column: scenario header + modality panel ──────── -->
+  <div class="task-left">
+
+    <div class="scenario-header-bar">
+      <div class="scenario-meta">
+        <span class="stage-pill">Stage {{ stage }} / 3</span>
+        <span class="scenario-count">Scenario {{ position + 1 }} of {{ total }}</span>
+        <div class="scenario-mini-progress">
+          {% for i in range(total) %}
+            <div class="mini-dot {% if i <= position %}filled{% endif %}"></div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="scenario-title-wrap">
+        <h2 class="scenario-title">{{ scenario.name }}</h2>
+        <div class="scenario-badges">
+          <span class="badge badge--{{ scenario.severity }}">{{ scenario.severity | upper }}</span>
+          <span class="badge badge--{{ scenario.ambiguity }}">{{ scenario.ambiguity | upper }}</span>
+        </div>
+      </div>
+      <p class="scenario-description">{{ scenario.description }}</p>
+    </div>
+
+    <!-- ── Timer (hidden, auto-starts on load) ──────────────── -->
+    <div class="timer-bar">
+      <span class="timer-label">Time on task:</span>
+      <span class="timer-display" id="timer-display">0:00</span>
+      <input type="hidden" id="elapsed-seconds" value="0"/>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════
+         MODALITY PANEL — rendered based on server-side modality
+         ════════════════════════════════════════════════════════ -->
+
+    {% if modality == "numerical" %}
+    <!-- ── NUMERICAL MODALITY ──────────────────────────────── -->
+    <div class="modality-panel modality-panel--numerical">
+      <div class="modality-label">
+        <span class="modality-badge modality-badge--numerical">Numerical Statistics</span>
+      </div>
+
+      <table class="metrics-table metrics-table--lg">
+        <thead>
+          <tr><th>Metric</th><th>Value</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Normalised residual r(t) — peak</td>
+            <td class="val val--highlight">{{ scenario.metrics.normalized_residual_peak }}σ</td>
+          </tr>
+          <tr>
+            <td>Disruption window duration</td>
+            <td class="val">{{ scenario.metrics.disruption_window_days }} days</td>
+          </tr>
+          <tr>
+            <td>Coefficient of variation (disruption window)</td>
+            <td class="val">{{ "%.3f"|format(scenario.metrics.cv_window) }}</td>
+          </tr>
+          <tr>
+            <td>Coefficient of variation (pre-disruption baseline)</td>
+            <td class="val">{{ "%.3f"|format(scenario.metrics.cv_baseline) }}</td>
+          </tr>
+          <tr>
+            <td>Bullwhip variance ratio (window / baseline)</td>
+            <td class="val {% if scenario.metrics.bullwhip_ratio > 2 %}val--danger{% elif scenario.metrics.bullwhip_ratio > 1.5 %}val--warn{% endif %}">
+              {{ scenario.metrics.bullwhip_ratio }}×
+            </td>
+          </tr>
+          <tr>
+            <td>Disruption classification (vs. historical baseline)</td>
+            <td class="val">
+              <span class="badge badge--{{ 'fail' if scenario.metrics.pass_fail == 'FAIL' else 'pass' }}">
+                {{ scenario.metrics.pass_fail }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="inventory-row">
+        <div class="inv-item">
+          <div class="inv-label">Current ROP (baseline)</div>
+          <div class="inv-val">{{ scenario.baseline_inventory.rop | int }} units</div>
+        </div>
+        <div class="inv-item">
+          <div class="inv-label">Current SS (baseline)</div>
+          <div class="inv-val">{{ scenario.baseline_inventory.ss | int }} units</div>
+        </div>
+        <div class="inv-item">
+          <div class="inv-label">Baseline demand μ</div>
+          <div class="inv-val">{{ scenario.baseline_inventory.mean | int }} units/day</div>
+        </div>
+        <div class="inv-item">
+          <div class="inv-label">Baseline demand σ</div>
+          <div class="inv-val">{{ scenario.baseline_inventory.std | int }} units/day</div>
+        </div>
+      </div>
+
+      <div class="ai-suggestion-box">
+        <span class="ai-label">AI Recommendation</span>
+        <span class="ai-val">ROP <strong>+{{ scenario.ai_suggested_rop_pct | int }}%</strong></span>
+        <span class="ai-sep">·</span>
+        <span class="ai-val">SS <strong>+{{ scenario.ai_suggested_ss_pct | int }}%</strong></span>
+      </div>
+    </div>
+
+    {% elif modality == "visual" %}
+    <!-- ── VISUAL MODALITY ─────────────────────────────────── -->
+    <div class="modality-panel modality-panel--visual">
+      <div class="modality-label">
+        <span class="modality-badge modality-badge--visual">Interactive Dashboard</span>
+      </div>
+
+      <div id="demand-chart" class="demand-chart"></div>
+      <div id="inventory-chart" class="inventory-chart"></div>
+
+      <div class="chart-legend-note">
+        Hover over the chart for exact values. The shaded red region marks the disruption window.
+      </div>
+
+      <div class="ai-suggestion-box">
+        <span class="ai-label">AI Recommendation</span>
+        <span class="ai-val">ROP <strong>+{{ scenario.ai_suggested_rop_pct | int }}%</strong></span>
+        <span class="ai-sep">·</span>
+        <span class="ai-val">SS <strong>+{{ scenario.ai_suggested_ss_pct | int }}%</strong></span>
+      </div>
+    </div>
+
+    {% elif modality == "llm" %}
+    <!-- ── LLM NARRATIVE MODALITY ──────────────────────────── -->
+    <div class="modality-panel modality-panel--llm">
+      <div class="modality-label">
+        <span class="modality-badge modality-badge--llm">AI Narrative Explanation</span>
+      </div>
+
+      <pre class="narrative-text">{{ scenario.narrative }}</pre>
+
+      <div class="ai-suggestion-box">
+        <span class="ai-label">AI Recommendation (summary)</span>
+        <span class="ai-val">ROP <strong>+{{ scenario.ai_suggested_rop_pct | int }}%</strong></span>
+        <span class="ai-sep">·</span>
+        <span class="ai-val">SS <strong>+{{ scenario.ai_suggested_ss_pct | int }}%</strong></span>
+      </div>
+    </div>
+    {% endif %}
+
+  </div><!-- end task-left -->
+
+  <!-- ── Right column: decision form ────────────────────────── -->
+  <div class="task-right">
+
+    <form method="POST" action="{{ url_for('main.task_response') }}" id="task-form">
+      <input type="hidden" name="elapsed_seconds" id="elapsed-hidden" value="0"/>
+      <input type="hidden" name="answer_changes" id="answer-changes-hidden" value="0"/>
+
+      <div class="decision-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <h3 style="margin-bottom: 0;">Your Inventory Decision</h3>
+          <div class="autosave-indicator" id="autosave-ind">
+            <div class="autosave-dot"></div> Saved
+          </div>
+        </div>
+        <p class="decision-hint">
+          Move the sliders to set your adjustment percentages. The AI suggested values are pre-loaded as a starting point — you may accept, increase, or decrease them.
+        </p>
+
+        <!-- ROP Slider -->
+        <div class="slider-group">
+          <div class="slider-header">
+            <label for="rop-slider">Reorder Point (ROP) Adjustment</label>
+            <span class="slider-current-val" id="rop-display">
+              +{{ scenario.ai_suggested_rop_pct | int }}%
+            </span>
+          </div>
+          <input type="range" class="exp-slider" id="rop-slider"
+                 name="rop_adjustment"
+                 min="{{ scenario.slider_rop_range[0] | int }}"
+                 max="{{ scenario.slider_rop_range[1] | int }}"
+                 value="{{ scenario.ai_suggested_rop_pct | int }}"
+                 step="1"
+                 data-display="rop-display"
+                 data-ai="{{ scenario.ai_suggested_rop_pct | int }}">
+          <div class="slider-markers">
+            <span>{{ scenario.slider_rop_range[0] | int }}%</span>
+            <span class="ai-marker" id="rop-ai-marker">
+              ▲ AI: {{ scenario.ai_suggested_rop_pct | int }}%
+            </span>
+            <span>{{ scenario.slider_rop_range[1] | int }}%</span>
+          </div>
+          <div class="slider-context">
+            Current ROP: {{ scenario.baseline_inventory.rop | int }} units →
+            New ROP: <strong id="rop-abs">{{ (scenario.baseline_inventory.rop * (1 + scenario.ai_suggested_rop_pct / 100)) | int }}</strong> units
+          </div>
+        </div>
+
+        <!-- SS Slider -->
+        <div class="slider-group">
+          <div class="slider-header">
+            <label for="ss-slider">Safety Stock (SS) Adjustment</label>
+            <span class="slider-current-val" id="ss-display">
+              +{{ scenario.ai_suggested_ss_pct | int }}%
+            </span>
+          </div>
+          <input type="range" class="exp-slider" id="ss-slider"
+                 name="ss_adjustment"
+                 min="{{ scenario.slider_ss_range[0] | int }}"
+                 max="{{ scenario.slider_ss_range[1] | int }}"
+                 value="{{ scenario.ai_suggested_ss_pct | int }}"
+                 step="1"
+                 data-display="ss-display"
+                 data-ai="{{ scenario.ai_suggested_ss_pct | int }}">
+          <div class="slider-markers">
+            <span>{{ scenario.slider_ss_range[0] | int }}%</span>
+            <span class="ai-marker" id="ss-ai-marker">
+              ▲ AI: {{ scenario.ai_suggested_ss_pct | int }}%
+            </span>
+            <span>{{ scenario.slider_ss_range[1] | int }}%</span>
+          </div>
+          <div class="slider-context">
+            Current SS: {{ scenario.baseline_inventory.ss | int }} units →
+            New SS: <strong id="ss-abs">{{ (scenario.baseline_inventory.ss * (1 + scenario.ai_suggested_ss_pct / 100)) | int }}</strong> units
+          </div>
+        </div>
+
+        <!-- Confidence rating -->
+        <div class="confidence-section">
+          <label class="confidence-label">
+            How confident are you in this decision?
+          </label>
+          <div class="likert-scale">
+            {% for i in range(1, 8) %}
+            <label class="likert-item">
+              <input type="radio" name="confidence" value="{{ i }}"
+                     {% if i == 4 %}checked{% endif %}>
+              <span class="likert-num">{{ i }}</span>
+            </label>
+            {% endfor %}
+          </div>
+          <div class="likert-anchors">
+            <span>Not at all confident</span>
+            <span>Neutral</span>
+            <span>Extremely confident</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn--primary btn--lg" id="submit-btn">
+            Submit Decision
+            <span class="btn-sub">
+              {% if position + 1 < total %}
+                → Scenario {{ position + 2 }} of {{ total }}
+              {% else %}
+                → Stage complete
+              {% endif %}
+            </span>
+          </button>
+        </div>
+
+      </div><!-- end decision-card -->
+    </form>
+
+  </div><!-- end task-right -->
+
+</div><!-- end task-layout -->
+
+<!-- Scenario data for JS (visual modality chart) -->
+<script>
+  const SCENARIO = {{ sc_json | safe }};
+  const MODALITY = "{{ modality }}";
+  const BASE_ROP  = {{ scenario.baseline_inventory.rop }};
+  const BASE_SS   = {{ scenario.baseline_inventory.ss }};
+</script>
+<script src="{{ url_for('static', filename='js/experiment.js') }}"></script>
+{% endblock %}

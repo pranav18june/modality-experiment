@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Modality and Decision Quality Study Platform"/>
+  <meta name="theme-color" content="#0b0e16"/>
+  <title>{% block title %}AI Supply Chain Decisions — Experiment{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <!-- Plotly loaded in <head> so inline chart scripts in content blocks can use it -->
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <span class="header-brand">Modality &amp; Decision Quality Study</span>
+      <span class="header-sub">Manipal University Jaipur · Indo-Swiss Research Initiative</span>
+      <div class="stepper-wrap">
+        {% set steps = [
+          ('Consent', progress_stage >= 0),
+          ('Tutorial', progress_stage >= 0.5),
+          ('Stage 1', progress_stage >= 1),
+          ('Stage 2', progress_stage >= 2),
+          ('Stage 3', progress_stage >= 3),
+          ('Done', progress_stage >= 4)
+        ] %}
+        
+        {% for label, is_completed in steps %}
+          {% set is_active = (progress_stage == 0.5 and loop.index0 == 1) or (progress_stage == loop.index0 and loop.index0 > 1) or (progress_stage == 0 and loop.index0 == 0) or (progress_stage == 4 and loop.index0 == 5) %}
+          {% set dot_class = "stepper-item" %}
+          {% if is_completed and not is_active %}
+            {% set dot_class = dot_class ~ " completed" %}
+          {% endif %}
+          {% if is_active %}
+            {% set dot_class = dot_class ~ " active" %}
+          {% endif %}
+          
+          <div class="{{ dot_class }}">
+            <div class="stepper-dot">
+              {% if is_completed and not is_active %}✓{% else %}{{ loop.index }}{% endif %}
+            </div>
+            <span class="stepper-label">{{ label }}</span>
+          </div>
+          {% if not loop.last %}
+            <div class="stepper-line"></div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </header>
+
+  <div id="session-banner" class="session-banner">
+    ⚠️ Your session will expire in 3 minutes due to inactivity. Please save or continue your work.
+    <button id="extend-session-btn" class="btn btn--secondary" style="padding: 4px 12px; font-size: 0.8rem;">Extend Session</button>
+  </div>
+
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+  
+  <div id="toast-container"></div>
+
+  <footer class="site-footer">
+    <span>Confidential · Research use only · Manipal University Jaipur 2025</span>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/session-guard.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

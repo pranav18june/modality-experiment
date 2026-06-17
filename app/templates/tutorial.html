@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+{% set progress_stage = 0.5 %}
+{% block title %}Tutorial — Modality Study{% endblock %}
+
+{% block content %}
+<div class="card card--wide">
+  <div class="card-header">
+    <h1>Study Tutorial</h1>
+    <p class="subtitle">Read carefully. You must pass a short quiz before the main task begins.</p>
+    <div class="reading-time" style="margin-top: 12px; font-size: 0.8rem; color: var(--accent); display: flex; align-items: center; gap: 6px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+      This section takes ~3 min to read
+    </div>
+  </div>
+
+  <!-- ── Part 1: Task explanation ─────────────────────────────── -->
+  <div class="tutorial-section">
+    <h2 class="highlight-accent">1. Your Task</h2>
+    <p>In this study you will act as a <strong>supply chain planner</strong>. A disruption has occurred (e.g. a port delay, a supplier shutdown, a demand surge). An AI system has analysed the situation and generated a recommendation.</p>
+    <p>Your job is to <strong>decide how much to adjust two inventory parameters</strong> in response to the disruption:</p>
+
+    <div class="param-cards">
+      <div class="param-card">
+        <div class="param-name">Reorder Point (ROP)</div>
+        <div class="param-desc">The inventory level at which you place a new order. Increasing ROP means you order sooner, building a buffer against delays.</div>
+      </div>
+      <div class="param-card">
+        <div class="param-name">Safety Stock (SS)</div>
+        <div class="param-desc">Extra stock held as a cushion against demand or supply uncertainty. Increasing SS protects against stockouts but ties up capital.</div>
+      </div>
+    </div>
+
+    <p>For each scenario you will use <strong>two sliders</strong> to set percentage adjustments to ROP and SS relative to their current baseline values. The AI system will suggest values — you can accept, increase, or decrease them.</p>
+
+    <div class="info-box info-box--tip">
+      <strong>Example:</strong> If the baseline ROP is 200 units and you slide to +30%, the new ROP would be 260 units. If you slide to −10%, it becomes 180 units.
+    </div>
+  </div>
+
+  <!-- ── Part 2: Recommendation formats ───────────────────────── -->
+  <div class="tutorial-section">
+    <h2 class="highlight-accent">2. AI Recommendation Formats</h2>
+    <p>In different parts of the study you will receive the AI recommendation in one of three formats:</p>
+
+    <div class="modality-examples">
+
+      <div class="modality-example">
+        <div class="modality-badge modality-badge--numerical">Numerical</div>
+        <div class="modality-example-content">
+          <table class="metrics-table">
+            <tr><td>Normalised residual r(t)</td><td class="val">2.41σ</td></tr>
+            <tr><td>Disruption window duration</td><td class="val">30 days</td></tr>
+            <tr><td>CV (disruption window)</td><td class="val">0.187</td></tr>
+            <tr><td>Bullwhip variance ratio</td><td class="val">1.62×</td></tr>
+            <tr><td>Disruption classification</td><td class="val badge badge--fail">FAIL</td></tr>
+          </table>
+          <div class="ai-suggestion-row">
+            <span>AI recommends: ROP <strong>+18%</strong> · SS <strong>+22%</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modality-example">
+        <div class="modality-badge modality-badge--visual">Visual</div>
+        <div class="modality-example-content">
+          <div id="tutorial-chart" style="height:180px;"></div>
+          <div class="ai-suggestion-row">
+            <span>AI recommends: ROP <strong>+18%</strong> · SS <strong>+22%</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modality-example">
+        <div class="modality-badge modality-badge--llm">AI Narrative</div>
+        <div class="modality-example-content narrative-preview">
+          <p><strong>Severity: MINOR</strong> · Signal: CLEAR</p>
+          <p>This pattern is consistent with a Port Congestion archetype. The normalised residual of 2.41σ combined with a bullwhip ratio of 1.62× indicates a moderate supply-side delay with contained demand impact. Expected time to 50% recovery: approximately 12–18 days.</p>
+          <p><strong>Recommendation:</strong> ROP +18% · SS +22%</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Part 3: Practice ──────────────────────────────────────── -->
+  <div class="tutorial-section">
+    <h2 class="highlight-accent">3. Practice Scenario</h2>
+    <p>Below is an example scenario. The sliders are <strong>not scored</strong> — this is just to familiarise yourself with the interface.</p>
+
+    <div class="practice-scenario">
+      <div class="scenario-header-bar">
+        <span class="scenario-title">Practice: {{ practice[0].name }}</span>
+        <span class="scenario-badges">
+          <span class="badge badge--{{ practice[0].severity }}">{{ practice[0].severity | upper }}</span>
+          <span class="badge badge--{{ practice[0].ambiguity }}">{{ practice[0].ambiguity | upper }}</span>
+        </span>
+      </div>
+
+      <!-- Numerical panel example -->
+      <div class="numerical-panel">
+        {% set m = practice[0].metrics %}
+        <table class="metrics-table">
+          <tr><td>Normalised residual r(t)</td><td class="val">{{ m.normalized_residual_peak }}σ</td></tr>
+          <tr><td>Disruption window</td>       <td class="val">{{ m.disruption_window_days }} days</td></tr>
+          <tr><td>CV (disruption window)</td>  <td class="val">{{ "%.3f"|format(m.cv_window) }}</td></tr>
+          <tr><td>CV (baseline)</td>           <td class="val">{{ "%.3f"|format(m.cv_baseline) }}</td></tr>
+          <tr><td>Bullwhip variance ratio</td> <td class="val">{{ m.bullwhip_ratio }}×</td></tr>
+          <tr><td>Disruption classification</td><td class="val">
+            <span class="badge badge--{{ 'fail' if m.pass_fail == 'FAIL' else 'pass' }}">{{ m.pass_fail }}</span>
+          </td></tr>
+        </table>
+        <div class="ai-suggestion-row">
+          AI recommends: ROP <strong>+{{ practice[0].ai_suggested_rop_pct | int }}%</strong>
+          &nbsp;·&nbsp;SS <strong>+{{ practice[0].ai_suggested_ss_pct | int }}%</strong>
+        </div>
+      </div>
+
+      <!-- Practice sliders (not submitted) -->
+      <div class="slider-section">
+        <div class="slider-group">
+          <label>ROP Adjustment (%)</label>
+          <div class="slider-row">
+            <input type="range" class="exp-slider" id="practice-rop"
+                   min="{{ practice[0].slider_rop_range[0] }}"
+                   max="{{ practice[0].slider_rop_range[1] }}"
+                   value="{{ practice[0].ai_suggested_rop_pct | int }}"
+                   step="1"
+                   data-display="practice-rop-val">
+            <span class="slider-value" id="practice-rop-val">{{ practice[0].ai_suggested_rop_pct | int }}%</span>
+          </div>
+          <div class="slider-markers">
+            <span>{{ practice[0].slider_rop_range[0] | int }}%</span>
+            <span class="ai-marker">▲ AI: {{ practice[0].ai_suggested_rop_pct | int }}%</span>
+            <span>{{ practice[0].slider_rop_range[1] | int }}%</span>
+          </div>
+        </div>
+        <div class="slider-group">
+          <label>Safety Stock Adjustment (%)</label>
+          <div class="slider-row">
+            <input type="range" class="exp-slider" id="practice-ss"
+                   min="{{ practice[0].slider_ss_range[0] }}"
+                   max="{{ practice[0].slider_ss_range[1] }}"
+                   value="{{ practice[0].ai_suggested_ss_pct | int }}"
+                   step="1"
+                   data-display="practice-ss-val">
+            <span class="slider-value" id="practice-ss-val">{{ practice[0].ai_suggested_ss_pct | int }}%</span>
+          </div>
+          <div class="slider-markers">
+            <span>{{ practice[0].slider_ss_range[0] | int }}%</span>
+            <span class="ai-marker">▲ AI: {{ practice[0].ai_suggested_ss_pct | int }}%</span>
+            <span>{{ practice[0].slider_ss_range[1] | int }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Part 4: Knowledge quiz ────────────────────────────────── -->
+  <div class="tutorial-section">
+    <h2 class="highlight-accent">4. Knowledge Check</h2>
+    <p>Answer the questions below before proceeding. You need <strong>3 out of 4</strong> correct. You may refer back to the tutorial above.</p>
+
+    <div class="quiz-block" id="quiz-block">
+
+      <div class="quiz-q" id="q1-block">
+        <p><strong class="highlight-red">Q1.</strong> The Reorder Point (ROP) is best described as:</p>
+        <label><input type="radio" name="q1" value="a"> The maximum amount of stock you can hold</label>
+        <label><input type="radio" name="q1" value="b"> The inventory level at which a new order should be placed</label>
+        <label><input type="radio" name="q1" value="c"> The amount you order each time</label>
+        <label><input type="radio" name="q1" value="d"> The lead time for delivery</label>
+      </div>
+
+      <div class="quiz-q" id="q2-block">
+        <p><strong class="highlight-red">Q2.</strong> Safety Stock (SS) is:</p>
+        <label><input type="radio" name="q2" value="a"> The minimum order quantity required by the supplier</label>
+        <label><input type="radio" name="q2" value="b"> The amount of stock already on order</label>
+        <label><input type="radio" name="q2" value="c"> Extra buffer stock held to protect against uncertainty in demand or supply</label>
+        <label><input type="radio" name="q2" value="d"> The safety margin built into the delivery schedule</label>
+      </div>
+
+      <div class="quiz-q" id="q3-block">
+        <p><strong class="highlight-red">Q3.</strong> A Bullwhip Variance Ratio greater than 1.0 means:</p>
+        <label><input type="radio" name="q3" value="a"> Demand is perfectly stable</label>
+        <label><input type="radio" name="q3" value="b"> Upstream supply variability is amplified relative to downstream demand variability</label>
+        <label><input type="radio" name="q3" value="c"> The disruption has fully recovered</label>
+        <label><input type="radio" name="q3" value="d"> Safety stock should be reduced</label>
+      </div>
+
+      <div class="quiz-q" id="q4-block">
+        <p><strong class="highlight-red">Q4.</strong> When the AI shows "FAIL" on the disruption classification, it means:</p>
+        <label><input type="radio" name="q4" value="a"> The demand signal has exceeded the disruption threshold — an inventory adjustment is recommended</label>
+        <label><input type="radio" name="q4" value="b"> The AI system has encountered an error</label>
+        <label><input type="radio" name="q4" value="c"> No disruption has been detected</label>
+        <label><input type="radio" name="q4" value="d"> The previous adjustment was incorrect</label>
+      </div>
+
+      <div id="quiz-feedback" class="quiz-feedback hidden"></div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--primary" id="quiz-submit">
+          Submit Answers
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── Practice slider live display ─────────────────────────────
+document.querySelectorAll('.exp-slider').forEach(slider => {
+  const displayId = slider.dataset.display;
+  const display   = document.getElementById(displayId);
+  slider.addEventListener('input', () => {
+    display.textContent = slider.value + '%';
+  });
+});
+
+// ── Tutorial Plotly chart ────────────────────────────────────
+(function() {
+  const days   = Array.from({length: 90}, (_, i) => i + 1);
+  const normal = days.map(d => 95 + 8 * Math.sin(2 * Math.PI * d / 90) + (Math.random() - 0.5) * 10);
+  const disrupted = days.map(d => d < 60 ? normal[d - 1] : normal[d - 1] * 1.22 + (Math.random() - 0.5) * 15);
+  const ma = disrupted.map((_, i) => {
+    const w = disrupted.slice(Math.max(0, i - 14), i + 1);
+    return w.reduce((a, b) => a + b, 0) / w.length;
+  });
+
+  Plotly.newPlot('tutorial-chart', [
+    {x: days, y: disrupted, name: 'Demand', line: {color: '#3b82f6', width: 1.5}},
+    {x: days, y: ma,        name: '30-day MA', line: {color: '#f59e0b', width: 1.5, dash: 'dot'}},
+    {x: [60, 60], y: [60, 145], name: 'Disruption', mode: 'lines',
+     line: {color: '#ef4444', dash: 'dash', width: 1}},
+  ], {
+    margin:   {t: 10, b: 30, l: 40, r: 10},
+    height:   180,
+    showlegend: true,
+    legend:   {orientation: 'h', y: -0.3},
+    xaxis:    {title: 'Day'},
+    yaxis:    {title: 'Units'},
+    paper_bgcolor: 'transparent',
+    plot_bgcolor:  '#0f1117',
+    font:     {color: '#94a3b8', size: 11},
+  }, {responsive: true, displayModeBar: false});
+})();
+
+// ── Quiz submission ──────────────────────────────────────────
+document.getElementById('quiz-submit').addEventListener('click', async function() {
+  const answers = {
+    q1: document.querySelector('input[name="q1"]:checked')?.value || '',
+    q2: document.querySelector('input[name="q2"]:checked')?.value || '',
+    q3: document.querySelector('input[name="q3"]:checked')?.value || '',
+    q4: document.querySelector('input[name="q4"]:checked')?.value || '',
+  };
+
+  const unanswered = Object.values(answers).filter(v => !v).length;
+  if (unanswered > 0) {
+    const fb = document.getElementById('quiz-feedback');
+    fb.className = 'quiz-feedback error';
+    fb.textContent = 'Please answer all 4 questions before submitting.';
+    return;
+  }
+
+  const btn = document.getElementById('quiz-submit');
+  btn.disabled = true;
+  btn.textContent = 'Checking…';
+
+  const resp = await fetch('/tutorial/complete', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(answers),
+  });
+  const result = await resp.json();
+
+  const fb = document.getElementById('quiz-feedback');
+  fb.className = 'quiz-feedback';
+
+  if (result.passed) {
+    fb.className += ' success';
+    fb.innerHTML = `✓ Correct! You scored ${result.score}/${result.total}. Starting the main experiment…`;
+    setTimeout(() => { window.location.href = '/task'; }, 1500);
+  } else {
+    fb.className += ' error';
+    fb.innerHTML = `You scored ${result.score}/${result.total} (need 3 to proceed). Review the tutorial above and try again.`;
+    btn.disabled    = false;
+    btn.textContent = 'Try Again';
+  }
+});
+</script>
+{% endblock %}

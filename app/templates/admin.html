@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Admin — Modality Experiment{% endblock %}
+
+{% block content %}
+<div class="card card--wide">
+  <div class="card-header">
+    <h1>Admin Panel</h1>
+    <p class="subtitle">Research team access only.</p>
+  </div>
+
+  {% if not auth %}
+  <!-- Login form -->
+  <form method="POST" action="{{ url_for('main.admin') }}" class="admin-login">
+    {% if error %}
+    <div class="alert alert--error">Incorrect password. Try again.</div>
+    {% endif %}
+    <div class="form-group">
+      <label for="password">Admin Password</label>
+      <input type="password" id="password" name="password" required autofocus
+             placeholder="Enter admin password…"/>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn--primary">Sign In</button>
+    </div>
+  </form>
+
+  {% else %}
+  <!-- Dashboard -->
+  <div class="admin-grid">
+    <div class="stat-card">
+      <div class="stat-val">{{ summary.total_participants }}</div>
+      <div class="stat-label">Total Participants</div>
+    </div>
+    <div class="stat-card stat-card--green">
+      <div class="stat-val">{{ summary.completed }}</div>
+      <div class="stat-label">Completed</div>
+    </div>
+    <div class="stat-card stat-card--yellow">
+      <div class="stat-val">{{ summary.in_progress }}</div>
+      <div class="stat-label">In Progress</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ summary.group_a }}</div>
+      <div class="stat-label">Group A (Num→Vis→LLM)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ summary.group_b }}</div>
+      <div class="stat-label">Group B (LLM→Vis→Num)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ summary.total_responses }}</div>
+      <div class="stat-label">Total Responses Logged</div>
+    </div>
+  </div>
+
+  <div style="margin: 20px 0; background: var(--border); border-radius: 8px; overflow: hidden; height: 8px;">
+    {% set pct = (summary.completed / summary.total_participants * 100)|int if summary.total_participants > 0 else 0 %}
+    <div style="height: 100%; background: var(--green); width: {{ pct }}%; transition: width 1s ease-out;"></div>
+  </div>
+  <div style="font-size: 0.8rem; color: var(--text-muted); text-align: right; margin-top: -12px; margin-bottom: 24px;">
+    Completion Rate: {{ pct }}%
+  </div>
+
+  <div class="admin-actions">
+    <h2>Data Export</h2>
+    <p>Download full datasets for analysis in R or Python.</p>
+    <div class="export-buttons">
+      <a href="{{ url_for('main.export_responses') }}" class="btn btn--primary">
+        ↓ Download Responses CSV
+        <span class="btn-sub">All slider decisions, confidence, time-on-task</span>
+      </a>
+      <a href="{{ url_for('main.export_participants') }}" class="btn btn--secondary">
+        ↓ Download Participants CSV
+        <span class="btn-sub">Demographics, group assignment, completion status</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="admin-actions">
+    <h2>Analysis Notes</h2>
+    <div class="info-box">
+      <p><strong>H1 (Mean Accuracy):</strong> Use responses.csv — compute <code>|rop_adjustment - optimal_rop_pct| / optimal_rop_pct</code> per row. Merge with scenarios.json for ground truth. Run GLMM with group (A/B) as predictor, participant + scenario as random effects.</p>
+      <p><strong>H2 (Decision Variance):</strong> Compute between-participant variance of accuracy scores within each group. Levene test + clustered bootstrap (10,000 replicates, resample at participant level).</p>
+      <p><strong>Optimal values per scenario</strong> are in <code>data/scenarios.json</code> fields <code>optimal_rop_pct</code> and <code>optimal_ss_pct</code>.</p>
+      <p><strong>Trust ratings</strong> are in the <code>trust_ratings</code> table in <code>data/experiment.db</code>.</p>
+    </div>
+  </div>
+
+  {% endif %}
+</div>
+{% endblock %}

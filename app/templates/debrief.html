@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% set progress_stage = 4 %}
+{% block title %}Study Complete — Thank You{% endblock %}
+
+{% block content %}
+<div class="card card--narrow">
+
+  <div class="card-header card-header--success" style="text-align: center;">
+    <svg class="checkmark-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+      <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+      <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+    </svg>
+    <h1>Study Complete!</h1>
+    <p class="subtitle">Thank you for your participation. Your responses have been recorded.</p>
+  </div>
+
+  <!-- Performance feedback -->
+  {% if mean_error is not none %}
+  <div class="performance-box">
+    <h2>Your Performance</h2>
+    <p>
+      Your average deviation from the normatively optimal inventory adjustment was
+      <strong>{{ mean_error }}%</strong>.
+    </p>
+    {% if mean_error < 15 %}
+    <div class="perf-bar perf-bar--excellent">
+      Excellent accuracy — you are in the top performer range.
+    </div>
+    {% elif mean_error < 30 %}
+    <div class="perf-bar perf-bar--good">
+      Good accuracy — close to the optimal adjustments across scenarios.
+    </div>
+    {% else %}
+    <div class="perf-bar perf-bar--average">
+      Reasonable attempt — supply chain disruption decisions are genuinely difficult.
+    </div>
+    {% endif %}
+    <p class="perf-note">
+      Top 10% performers in each group will be notified separately and will receive a certificate of excellence plus a ₹500–1,000 award.
+    </p>
+  </div>
+  {% endif %}
+
+  <!-- Study purpose debrief -->
+  <div class="debrief-section">
+    <h2>What This Study Was About</h2>
+    <p>This study investigated whether the <strong>format (modality)</strong> in which an AI recommendation is delivered affects the quality and consistency of human supply chain decisions.</p>
+    <p>You were randomly assigned to one of two groups:</p>
+    <ul>
+      <li><strong>Group A</strong> — received recommendations as: Numerical Statistics → Visual Dashboard → AI Narrative</li>
+      <li><strong>Group B</strong> — received recommendations as: AI Narrative → Visual Dashboard → Numerical Statistics</li>
+    </ul>
+    <p>You were in <strong>Group {{ group }}</strong>.</p>
+    <p>We hypothesise that groups who see numerical statistics <em>first</em> (Group A) will make more precisely calibrated decisions, while narrative-first groups (Group B) may show greater variance in outcomes. Results from all participants will be analysed and submitted for publication.</p>
+  </div>
+
+  <!-- What happens next -->
+  <div class="debrief-section">
+    <h2>What Happens Next</h2>
+    <ul>
+      <li>Your anonymised data will be used for academic research only.</li>
+      <li>A post-experiment educational session on AI in supply chain management will be offered — watch for announcements.</li>
+      <li>If you qualify for the top-performer award, the research team will contact you within two weeks via your department.</li>
+      <li>Results of the study may be shared in a summary report distributed to all participants.</li>
+    </ul>
+  </div>
+
+  <!-- Contact -->
+  <div class="debrief-section">
+    <h2>Questions or Concerns?</h2>
+    <p>Contact the research team: <strong>research-supply-chain@muj.manipal.edu</strong></p>
+    <p>Reference: Indo-Swiss Joint Research Initiative — AI for Public Good: Sustainable and Resilient Supply Chains (Leading House South Asia, 2025)</p>
+  </div>
+
+  <div class="form-actions form-actions--center">
+    <div class="completion-badge">
+      Session complete · You may close this window
+    </div>
+  </div>
+
+</div>
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // Simple CSS-based confetti effect
+  const colors = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#a855f7'];
+  for (let i = 0; i < 50; i++) {
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti';
+    confetti.style.left = Math.random() * 100 + 'vw';
+    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+    confetti.style.animationDelay = (Math.random() * 2) + 's';
+    document.body.appendChild(confetti);
+  }
+});
+</script>
+{% endblock %}

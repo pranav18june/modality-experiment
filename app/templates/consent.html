@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% set progress_stage = 0 %}
+{% block title %}Consent & Participation — Modality Study{% endblock %}
+
+{% block content %}
+<div class="card card--wide">
+  <div class="card-header">
+    <h1>Participant Information &amp; Consent</h1>
+    <p class="subtitle">Please read carefully before proceeding.</p>
+  </div>
+
+  <div class="info-box">
+    <h3 class="highlight-accent">About this study</h3>
+    <p>This study investigates how different ways of presenting AI recommendations affect supply chain inventory decisions. You will evaluate a series of supply chain disruption scenarios and decide how to adjust two inventory parameters.</p>
+    <ul>
+      <li><strong class="highlight-accent">Duration:</strong> approximately 45–55 minutes</li>
+      <li><strong class="highlight-accent">Task:</strong> 12 inventory adjustment decisions across 3 stages, with short rating scales between stages</li>
+      <li><strong class="highlight-green">Incentive:</strong> All participants receive a goodie bag on completion. Top 10% performers in each group receive a ₹500–1,000 cash award and certificate.</li>
+    </ul>
+    <h3 class="highlight-accent" style="margin-top: 16px;">Your rights</h3>
+    <p>Participation is voluntary. <span class="highlight-red">You may withdraw at any time without penalty.</span> Your responses are anonymised — no personally identifying information is stored beyond the demographic data below. Data is used solely for academic research and will not be shared outside the research team.</p>
+    <p>This study has been approved by the Manipal University Jaipur Institutional Review Board.</p>
+  </div>
+
+  <form method="POST" action="{{ url_for('main.consent') }}" id="consent-form">
+    <!-- Hidden fields for device metadata -->
+    <input type="hidden" name="device_type" id="meta-device" value="unknown">
+    <input type="hidden" name="os_version" id="meta-os" value="unknown">
+    <input type="hidden" name="browser_version" id="meta-browser" value="unknown">
+    <input type="hidden" name="screen_size" id="meta-screen" value="unknown">
+    <input type="hidden" name="time_zone" id="meta-tz" value="unknown">
+    <input type="hidden" name="language" id="meta-lang" value="unknown">
+
+    <div class="form-section">
+      <h2>Demographic Information</h2>
+      <p class="form-hint">All fields required. This information helps us control for background knowledge in the analysis.</p>
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label for="program">Programme of Study</label>
+          <select id="program" name="program" required>
+            <option value="" disabled selected>Select…</option>
+            <option value="btech_cs">B.Tech Computer Science / IT</option>
+            <option value="btech_other">B.Tech Other Engineering</option>
+            <option value="bsc_maths">B.Sc Mathematics / Statistics</option>
+            <option value="mba">MBA / BBA Management</option>
+            <option value="msc_data">M.Sc Data Science / Analytics</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="year_of_study">Year of Study</label>
+          <select id="year_of_study" name="year_of_study" required>
+            <option value="" disabled selected>Select…</option>
+            <option value="1">1st Year</option>
+            <option value="2">2nd Year</option>
+            <option value="3">3rd Year</option>
+            <option value="4">4th Year</option>
+            <option value="pg">Postgraduate</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="sc_exposure">Prior Supply Chain Coursework</label>
+          <select id="sc_exposure" name="sc_exposure" required>
+            <option value="" disabled selected>Select…</option>
+            <option value="none">None</option>
+            <option value="1_2_courses">1–2 courses</option>
+            <option value="3_plus">3 or more courses</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="ai_familiarity">Frequency of AI Tool Use</label>
+          <select id="ai_familiarity" name="ai_familiarity" required>
+            <option value="" disabled selected>Select…</option>
+            <option value="never">Never</option>
+            <option value="occasionally">Occasionally (a few times a month)</option>
+            <option value="regularly">Regularly (weekly or more)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="gender">Gender</label>
+          <select id="gender" name="gender" required>
+            <option value="" disabled selected>Select…</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="nonbinary">Non-binary / Other</option>
+            <option value="prefer_not">Prefer not to say</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h2>Consent Declaration</h2>
+      <label class="checkbox-label">
+        <input type="checkbox" name="consent_read" id="consent_read" required/>
+        I have read and understood the participant information above.
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" name="consent_voluntary" id="consent_voluntary" required/>
+        I understand that participation is voluntary and I may withdraw at any time.
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" name="consent_data" id="consent_data" required/>
+        I consent to my anonymised data being used for academic research.
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn--primary btn--lg" id="submit-btn" disabled>
+        I Consent — Begin Study
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<script src="{{ url_for('static', filename='js/device-metadata.js') }}"></script>
+<script>
+  // Enable submit only when all checkboxes ticked
+  const checks = document.querySelectorAll('input[type="checkbox"]');
+  const btn    = document.getElementById('submit-btn');
+  checks.forEach(c => c.addEventListener('change', () => {
+    btn.disabled = ![...checks].every(x => x.checked);
+  }));
+</script>
+{% endblock %}
