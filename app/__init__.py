@@ -1,4 +1,5 @@
 import os
+import traceback
 from flask import Flask
 from .models import init_db
 from pymongo.errors import ServerSelectionTimeoutError
@@ -32,5 +33,9 @@ def create_app():
             "<p><strong>If you are on Vercel:</strong> You MUST go to your MongoDB Atlas Dashboard > Security > Network Access and click <em>Add IP Address -> Allow Access From Anywhere (0.0.0.0/0)</em>. Vercel's IP addresses change dynamically and will be blocked otherwise.</p>", 
             500
         )
+
+    @app.errorhandler(Exception)
+    def handle_generic_exception(error):
+        return f"<h2>Unhandled Exception</h2><pre>{traceback.format_exc()}</pre>", 500
 
     return app

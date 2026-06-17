@@ -273,6 +273,7 @@ def comprehension():
             "item_3": request.form.get("item_3", ""),
             "item_4": request.form.get("item_4", ""),
             "item_5": request.form.get("item_5", ""),
+            "item_5_reason": request.form.get("item_5_reason", ""),
         }
         save_comprehension(_pid(), answers)
         mark_completed(_pid())

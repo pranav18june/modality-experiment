@@ -338,6 +338,7 @@ def save_comprehension(pid: str, answers: dict):
                 "item_3": answers.get("item_3"),
                 "item_4": answers.get("item_4"),
                 "item_5": answers.get("item_5"),
+                "item_5_reason": answers.get("item_5_reason"),
             },
             "scores": {
                 "item_1_correct": i1_correct,
@@ -422,11 +423,20 @@ def export_participants_csv() -> str:
         "participant_id", "group_assignment", "program", "year_of_study",
         "sc_exposure", "ai_familiarity", "gender",
         "tutorial_passed", "completed", "created_at", "completed_at",
+        "comp_item_1", "comp_item_2", "comp_item_3", "comp_item_4", "comp_item_5", "comp_item_5_reason",
+        "comp_score_1", "comp_score_2", "comp_score_4",
+        "trust_s1_q1", "trust_s1_q2", "trust_s1_q3",
+        "trust_s2_q1", "trust_s2_q2", "trust_s2_q3",
+        "trust_s3_q1", "trust_s3_q2", "trust_s3_q3",
     ]
 
-    for doc in _col().find({}, {"responses": 0, "trust_ratings": 0, "comprehension": 0}).sort("_id", ASCENDING):
+    for doc in _col().find({}, {"responses": 0}).sort("_id", ASCENDING):
         demo     = doc.get("demographics", {})
         progress = doc.get("progress", {})
+        comp     = doc.get("comprehension", {})
+        comp_ans = comp.get("answers", {})
+        comp_scr = comp.get("scores", {})
+        
         row = {
             "participant_id":   str(doc["_id"]),
             "group_assignment": doc.get("group_assignment", ""),
@@ -439,7 +449,26 @@ def export_participants_csv() -> str:
             "completed":        1 if progress.get("completed") else 0,
             "created_at":       doc.get("created_at", ""),
             "completed_at":     doc.get("completed_at", ""),
+            "comp_item_1":      comp_ans.get("item_1", ""),
+            "comp_item_2":      comp_ans.get("item_2", ""),
+            "comp_item_3":      comp_ans.get("item_3", ""),
+            "comp_item_4":      comp_ans.get("item_4", ""),
+            "comp_item_5":      comp_ans.get("item_5", ""),
+            "comp_item_5_reason": comp_ans.get("item_5_reason", ""),
+            "comp_score_1":     comp_scr.get("item_1_correct", ""),
+            "comp_score_2":     comp_scr.get("item_2_correct", ""),
+            "comp_score_4":     comp_scr.get("item_4_correct", ""),
         }
+
+        # Add trust ratings flatly
+        trusts = doc.get("trust_ratings", [])
+        for t in trusts:
+            st = t.get("stage")
+            if st in [1, 2, 3]:
+                row[f"trust_s{st}_q1"] = t.get("trust_1", "")
+                row[f"trust_s{st}_q2"] = t.get("trust_2", "")
+                row[f"trust_s{st}_q3"] = t.get("trust_3", "")
+
         if writer is None:
             writer = csv.DictWriter(buf, fieldnames=headers)
             writer.writeheader()
