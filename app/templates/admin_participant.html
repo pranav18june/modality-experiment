@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Participant Details — Admin{% endblock %}
+
+{% block content %}
+<div class="card card--wide">
+  <div class="card-header">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h1>Participant Details</h1>
+        <p class="subtitle" style="font-family: monospace;">ID: {{ p._id }}</p>
+      </div>
+      <a href="{{ url_for('main.admin') }}" class="btn btn--secondary">← Back to Admin</a>
+    </div>
+  </div>
+
+  <div class="admin-actions">
+    <h2>Overview</h2>
+    <div class="info-box" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+      <div><strong>Group:</strong> {{ p.group_assignment }}</div>
+      <div><strong>Token:</strong> <span style="font-family: monospace;">{{ p.session_token }}</span></div>
+      <div><strong>Started:</strong> {{ p.created_at.strftime('%Y-%m-%d %H:%M:%S') if p.created_at else 'N/A' }}</div>
+      <div><strong>Completed:</strong> {{ p.completed_at.strftime('%Y-%m-%d %H:%M:%S') if p.completed_at else 'No' }}</div>
+      <div><strong>Tutorial Passed:</strong> {{ 'Yes' if p.progress and p.progress.tutorial_passed else 'No' }}</div>
+    </div>
+  </div>
+
+  <div class="admin-actions">
+    <h2>Demographics</h2>
+    <div class="info-box" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+      {% if p.demographics %}
+        <div><strong>Program:</strong> {{ p.demographics.program or 'N/A' }}</div>
+        <div><strong>Year of Study:</strong> {{ p.demographics.year_of_study or 'N/A' }}</div>
+        <div><strong>Gender:</strong> {{ p.demographics.gender or 'N/A' }}</div>
+        <div><strong>Supply Chain Exp:</strong> {{ p.demographics.sc_exposure or 'N/A' }}</div>
+        <div><strong>AI Familiarity:</strong> {{ p.demographics.ai_familiarity or 'N/A' }}</div>
+      {% else %}
+        <div>No demographics data recorded yet.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="admin-actions">
+    <h2>Responses ({{ p.responses|length if p.responses else 0 }})</h2>
+    {% if p.responses %}
+    <div style="overflow-x: auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.05);">
+            <th style="padding: 10px;">Stage</th>
+            <th style="padding: 10px;">Modality</th>
+            <th style="padding: 10px;">Scenario ID</th>
+            <th style="padding: 10px;">Pos</th>
+            <th style="padding: 10px;">ROP Adj</th>
+            <th style="padding: 10px;">SS Adj</th>
+            <th style="padding: 10px;">Conf</th>
+            <th style="padding: 10px;">Time (s)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in p.responses|sort(attribute='submitted_at') %}
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 10px;">{{ r.stage }}</td>
+            <td style="padding: 10px;">{{ r.modality }}</td>
+            <td style="padding: 10px;">{{ r.scenario_id }}</td>
+            <td style="padding: 10px;">{{ r.position_in_stage }}</td>
+            <td style="padding: 10px;">{{ r.rop_adjustment }}</td>
+            <td style="padding: 10px;">{{ r.ss_adjustment }}</td>
+            <td style="padding: 10px;">{{ r.confidence }}</td>
+            <td style="padding: 10px;">{{ r.time_on_task_seconds|round(1) if r.time_on_task_seconds else 0 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <div class="info-box">No responses recorded yet.</div>
+    {% endif %}
+  </div>
+
+  <div class="admin-actions">
+    <h2>Trust Ratings</h2>
+    {% if p.trust_ratings %}
+    <div style="overflow-x: auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.05);">
+            <th style="padding: 10px;">Stage</th>
+            <th style="padding: 10px;">Q1 (Reliable)</th>
+            <th style="padding: 10px;">Q2 (Trust)</th>
+            <th style="padding: 10px;">Q3 (Understand)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in p.trust_ratings|sort(attribute='stage') %}
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 10px;">{{ t.stage }}</td>
+            <td style="padding: 10px;">{{ t.trust_1 }}</td>
+            <td style="padding: 10px;">{{ t.trust_2 }}</td>
+            <td style="padding: 10px;">{{ t.trust_3 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <div class="info-box">No trust ratings recorded yet.</div>
+    {% endif %}
+  </div>
+
+  <div class="admin-actions">
+    <h2>Comprehension Check</h2>
+    {% if p.comprehension %}
+    <div class="info-box">
+      <h3 style="margin-top: 0;">Scores</h3>
+      <ul style="margin-top: 5px;">
+        <li><strong>Item 1 (Disruption):</strong> {{ 'Correct' if p.comprehension.scores.item_1_correct else 'Incorrect' }}</li>
+        <li><strong>Item 2 (Threshold):</strong> {{ 'Correct' if p.comprehension.scores.item_2_correct else 'Incorrect' }}</li>
+        <li><strong>Item 4 (Safety Stock):</strong> {{ 'Correct' if p.comprehension.scores.item_4_correct else 'Incorrect' }}</li>
+      </ul>
+      <h3 style="margin-top: 15px;">Answers</h3>
+      <div style="display: grid; gap: 10px; font-size: 0.9rem;">
+        <div><strong>Item 1:</strong> {{ p.comprehension.answers.item_1 }}</div>
+        <div><strong>Item 2:</strong> {{ p.comprehension.answers.item_2 }}</div>
+        <div><strong>Item 3:</strong> {{ p.comprehension.answers.item_3 }}</div>
+        <div><strong>Item 4:</strong> {{ p.comprehension.answers.item_4 }}</div>
+        <div><strong>Item 5 (Pref):</strong> {{ p.comprehension.answers.item_5 }}</div>
+        <div><strong>Item 5 (Reason):</strong> <br><div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 4px; margin-top: 5px;">{{ p.comprehension.answers.item_5_reason }}</div></div>
+      </div>
+    </div>
+    {% else %}
+      <div class="info-box">No comprehension data recorded yet.</div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

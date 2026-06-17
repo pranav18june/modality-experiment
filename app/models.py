@@ -186,6 +186,33 @@ def _flatten_doc(doc: dict) -> dict:
         "completed":          1 if progress.get("completed") else 0,
     }
 
+def get_participant_raw(pid: str) -> dict | None:
+    """Fetch the complete, unflattened participant document."""
+    try:
+        return _col().find_one({"_id": ObjectId(pid)})
+    except Exception:
+        return None
+
+def get_all_participants_summary() -> list[dict]:
+    """Fetch a summary of all participants for the admin panel."""
+    pipeline = [
+        {"$project": {
+            "_id": 1,
+            "session_token": 1,
+            "group_assignment": 1,
+            "created_at": 1,
+            "completed_at": 1,
+            "tutorial_passed": "$progress.tutorial_passed",
+            "completed": "$progress.completed",
+            "response_count": {"$size": {"$ifNull": ["$responses", []]}}
+        }},
+        {"$sort": {"created_at": -1}}
+    ]
+    docs = list(_col().aggregate(pipeline))
+    for d in docs:
+        d["id"] = str(d["_id"])
+    return docs
+
 
 def update_demographics(pid: str, data: dict):
     _col().update_one(

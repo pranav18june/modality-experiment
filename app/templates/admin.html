@@ -100,6 +100,49 @@
     {% endif %}
   </div>
 
+  <div class="admin-actions">
+    <h2>Participants Overview</h2>
+    <div style="overflow-x: auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.05);">
+            <th style="padding: 12px 16px;">Session Token</th>
+            <th style="padding: 12px 16px;">Group</th>
+            <th style="padding: 12px 16px;">Status</th>
+            <th style="padding: 12px 16px;">Responses</th>
+            <th style="padding: 12px 16px;">Created At</th>
+            <th style="padding: 12px 16px;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in participants %}
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 12px 16px; font-family: monospace; font-size: 0.9em;">{{ p.session_token[:8] }}…</td>
+            <td style="padding: 12px 16px;">{{ p.group_assignment }}</td>
+            <td style="padding: 12px 16px;">
+              {% if p.completed %}
+                <span style="color: var(--green);">Completed</span>
+              {% elif p.tutorial_passed %}
+                <span style="color: var(--yellow);">In Progress</span>
+              {% else %}
+                <span style="color: var(--text-muted);">Started</span>
+              {% endif %}
+            </td>
+            <td style="padding: 12px 16px;">{{ p.response_count }}</td>
+            <td style="padding: 12px 16px; font-size: 0.9em; color: var(--text-muted);">{{ p.created_at.strftime('%Y-%m-%d %H:%M') if p.created_at else '' }}</td>
+            <td style="padding: 12px 16px;">
+              <a href="{{ url_for('main.admin_participant', pid=p.id) }}" class="btn btn--secondary" style="padding: 4px 10px; font-size: 0.8rem; height: auto;">View Details</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if not participants %}
+      <div style="padding: 20px; text-align: center; color: var(--text-muted);">No participants found.</div>
+      {% endif %}
+    </div>
+  </div>
+
   {% endif %}
 </div>
 

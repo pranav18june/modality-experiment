@@ -332,10 +332,22 @@ def admin():
     if not session.get("admin_auth"):
         return render_template("admin.html", auth=False, error=False, summary=None, vis_data=None)
 
-    from .models import admin_summary, get_visualization_data
+    from .models import admin_summary, get_visualization_data, get_all_participants_summary
     summary = admin_summary()
     vis_data = get_visualization_data()
-    return render_template("admin.html", auth=True, error=False, summary=summary, vis_data=vis_data)
+    participants = get_all_participants_summary()
+    return render_template("admin.html", auth=True, error=False, summary=summary, vis_data=vis_data, participants=participants)
+
+@bp.route("/admin/participant/<pid>")
+def admin_participant(pid):
+    if not session.get("admin_auth"):
+        abort(403)
+    from .models import get_participant_raw, get_scenario_order
+    p = get_participant_raw(pid)
+    if not p:
+        abort(404)
+    # We will pass the raw participant to the template
+    return render_template("admin_participant.html", p=p)
 
 
 @bp.route("/admin/export/responses")
