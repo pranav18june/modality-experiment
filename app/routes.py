@@ -86,7 +86,13 @@ def _next_url_after_response(pid: int, stage: int, position: int) -> str:
 @bp.route("/")
 def index():
     if _pid():
-        return redirect(url_for("main.task"))
+        return render_template("resume_prompt.html")
+    return redirect(url_for("main.consent"))
+
+
+@bp.route("/restart")
+def restart():
+    session.clear()
     return redirect(url_for("main.consent"))
 
 

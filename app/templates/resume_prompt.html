@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Resume Session — Modality Study{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 60px auto;">
+  <div class="card-header" style="text-align: center;">
+    <h1>Active Session Found</h1>
+    <p class="subtitle">It looks like you have an experiment session already in progress.</p>
+  </div>
+
+  <div class="info-box" style="margin-top: 24px; text-align: center; line-height: 1.6;">
+    <p>You can choose to resume your last session and continue the study from where you left off, or permanently terminate the session and start a new one.</p>
+    <p style="color: var(--yellow); font-weight: bold; margin-top: 12px;">⚠️ Note: Starting a new session will discard all progress in your current session.</p>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 32px; align-items: stretch;">
+    <a href="{{ url_for('main.task') }}" class="btn btn--primary btn--lg" style="text-align: center; text-decoration: none;">
+      Resume Existing Session
+    </a>
+    <a href="{{ url_for('main.restart') }}" class="btn btn--secondary" style="text-align: center; text-decoration: none; border: 1px solid var(--border);" onclick="return confirm('Are you sure you want to restart? All progress from the active session will be permanently lost.');">
+      Terminate &amp; Start Over
+    </a>
+  </div>
+</div>
+{% endblock %}
