@@ -192,25 +192,36 @@
     },
   ];
 
+  function getThemeColors() {
+    const isLight = document.documentElement.classList.contains('light-mode');
+    return {
+      bg: isLight ? '#f1f5f9' : '#0b0e16',
+      grid: isLight ? '#e2e8f0' : '#1e2840',
+      text: isLight ? '#475569' : '#94a3b8'
+    };
+  }
+
+  const c = getThemeColors();
+
   const demandLayout = {
     margin:  {t: 10, b: 40, l: 50, r: 16},
     height:  240,
     legend:  {orientation: 'h', y: -0.22, font: {size: 11}},
     xaxis: {
       title: {text: 'Day', standoff: 8},
-      color: '#64748b',
-      gridcolor: '#1e2840',
+      color: c.text,
+      gridcolor: c.grid,
       zeroline: false,
     },
     yaxis: {
       title: {text: 'Units/day', standoff: 8},
-      color: '#64748b',
-      gridcolor: '#1e2840',
+      color: c.text,
+      gridcolor: c.grid,
       zeroline: false,
     },
     paper_bgcolor: 'transparent',
-    plot_bgcolor:  '#0b0e16',
-    font:   {color: '#94a3b8', size: 11, family: '-apple-system, sans-serif'},
+    plot_bgcolor:  c.bg,
+    font:   {color: c.text, size: 11, family: '-apple-system, sans-serif'},
     hovermode: 'x unified',
   };
 
@@ -250,16 +261,33 @@
      line: {color: '#22c55e', width: 1.5}},
   ];
 
-  Plotly.newPlot(inventoryDiv, invTraces, {
+  const invLayout = {
     margin:  {t: 6, b: 36, l: 50, r: 16},
     height:  140,
     legend:  {orientation: 'h', y: -0.35, font: {size: 10}},
-    xaxis:   {color: '#64748b', gridcolor: '#1e2840', title: {text: 'Day', standoff: 6}},
-    yaxis:   {color: '#64748b', gridcolor: '#1e2840', title: {text: 'Units', standoff: 6}},
+    xaxis:   {color: c.text, gridcolor: c.grid, title: {text: 'Day', standoff: 6}},
+    yaxis:   {color: c.text, gridcolor: c.grid, title: {text: 'Units', standoff: 6}},
     paper_bgcolor: 'transparent',
-    plot_bgcolor:  '#0b0e16',
-    font:    {color: '#94a3b8', size: 10},
-  }, {responsive: true, displayModeBar: false});
+    plot_bgcolor:  c.bg,
+    font:    {color: c.text, size: 10},
+  };
+
+  Plotly.newPlot(inventoryDiv, invTraces, invLayout, {responsive: true, displayModeBar: false});
+
+  // Re-render charts on theme change
+  window.addEventListener('themeChanged', () => {
+    const nc = getThemeColors();
+    const update = {
+      'xaxis.color': nc.text,
+      'xaxis.gridcolor': nc.grid,
+      'yaxis.color': nc.text,
+      'yaxis.gridcolor': nc.grid,
+      'plot_bgcolor': nc.bg,
+      'font.color': nc.text
+    };
+    if (demandDiv.layout) Plotly.relayout(demandDiv, update);
+    if (inventoryDiv.layout) Plotly.relayout(inventoryDiv, update);
+  });
 })();
 
 
@@ -300,7 +328,22 @@
     }
 
     allowSubmit = true;
-    btn.disabled     = true;
-    btn.textContent  = 'Saving…';
+    btn.disabled = true;
+    btn.innerHTML = '<svg class="spinner" viewBox="0 0 50 50" style="width: 20px; height: 20px; animation: spin 1s linear infinite; margin-right: 8px; vertical-align: middle;"><circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5" stroke-dasharray="80" stroke-dashoffset="60" stroke-linecap="round"></circle></svg> Saving...';
+    
+    // Create soft validation/loading overlay dynamically
+    let overlay = document.createElement('div');
+    overlay.className = 'validation-overlay active';
+    overlay.style.backdropFilter = 'blur(6px)';
+    overlay.style.transition = 'opacity 0.4s ease';
+    document.body.appendChild(overlay);
+    
+    // Add keyframes for spinner dynamically if not exists
+    if (!document.getElementById('spinner-keyframes')) {
+      let style = document.createElement('style');
+      style.id = 'spinner-keyframes';
+      style.innerHTML = '@keyframes spin { 100% { transform: rotate(360deg); } }';
+      document.head.appendChild(style);
+    }
   });
 })();

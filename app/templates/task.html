@@ -8,7 +8,7 @@
   <!-- ── Left column: scenario header + modality panel ──────── -->
   <div class="task-left">
 
-    <div class="scenario-header-bar">
+    <div class="scenario-header-bar severity-{{ scenario.severity }}">
       <div class="scenario-meta">
         <span class="stage-pill">Stage {{ stage }} / 3</span>
         <span class="scenario-count">Scenario {{ position + 1 }} of {{ total }}</span>
@@ -51,34 +51,34 @@
           <tr><th>Metric</th><th>Value</th></tr>
         </thead>
         <tbody>
-          <tr>
+          <tr class="row-headline">
             <td>Normalised residual r(t) — peak</td>
             <td class="val val--highlight">{{ scenario.metrics.normalized_residual_peak }}σ</td>
           </tr>
-          <tr>
-            <td>Disruption window duration</td>
-            <td class="val">{{ scenario.metrics.disruption_window_days }} days</td>
-          </tr>
-          <tr>
-            <td>Coefficient of variation (disruption window)</td>
-            <td class="val">{{ "%.3f"|format(scenario.metrics.cv_window) }}</td>
-          </tr>
-          <tr>
-            <td>Coefficient of variation (pre-disruption baseline)</td>
-            <td class="val">{{ "%.3f"|format(scenario.metrics.cv_baseline) }}</td>
-          </tr>
-          <tr>
-            <td>Bullwhip variance ratio (window / baseline)</td>
-            <td class="val {% if scenario.metrics.bullwhip_ratio > 2 %}val--danger{% elif scenario.metrics.bullwhip_ratio > 1.5 %}val--warn{% endif %}">
-              {{ scenario.metrics.bullwhip_ratio }}×
-            </td>
-          </tr>
-          <tr>
-            <td>Disruption classification (vs. historical baseline)</td>
+          <tr class="row-headline">
+            <td>Disruption classification (vs. historical)</td>
             <td class="val">
               <span class="badge badge--{{ 'fail' if scenario.metrics.pass_fail == 'FAIL' else 'pass' }}">
                 {{ scenario.metrics.pass_fail }}
               </span>
+            </td>
+          </tr>
+          <tr class="row-supporting">
+            <td>Disruption window duration</td>
+            <td class="val">{{ scenario.metrics.disruption_window_days }} days</td>
+          </tr>
+          <tr class="row-supporting">
+            <td>Coefficient of variation (window)</td>
+            <td class="val">{{ "%.3f"|format(scenario.metrics.cv_window) }}</td>
+          </tr>
+          <tr class="row-supporting">
+            <td>Coefficient of variation (baseline)</td>
+            <td class="val">{{ "%.3f"|format(scenario.metrics.cv_baseline) }}</td>
+          </tr>
+          <tr class="row-supporting">
+            <td>Bullwhip variance ratio</td>
+            <td class="val {% if scenario.metrics.bullwhip_ratio > 2 %}val--danger{% elif scenario.metrics.bullwhip_ratio > 1.5 %}val--warn{% endif %}">
+              {{ scenario.metrics.bullwhip_ratio }}×
             </td>
           </tr>
         </tbody>
@@ -187,16 +187,15 @@
                  step="1"
                  data-display="rop-display"
                  data-ai="{{ scenario.ai_suggested_rop_pct | int }}">
-          <div class="slider-markers">
-            <span>{{ scenario.slider_rop_range[0] | int }}%</span>
-            <span class="ai-marker" id="rop-ai-marker">
-              ▲ AI: {{ scenario.ai_suggested_rop_pct | int }}%
-            </span>
-            <span>{{ scenario.slider_rop_range[1] | int }}%</span>
-          </div>
-          <div class="slider-context">
-            Current ROP: {{ scenario.baseline_inventory.rop | int }} units →
-            New ROP: <strong id="rop-abs">{{ (scenario.baseline_inventory.rop * (1 + scenario.ai_suggested_rop_pct / 100)) | int }}</strong> units
+          
+          <div class="slider-context" style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 0.75rem; color: var(--text-muted);">
+              Baseline: {{ scenario.baseline_inventory.rop | int }} &nbsp;→&nbsp;
+              New absolute: <strong id="rop-abs" style="color: var(--text-primary);">{{ (scenario.baseline_inventory.rop * (1 + scenario.ai_suggested_rop_pct / 100)) | int }}</strong>
+            </div>
+            <div class="ai-marker" id="rop-ai-marker">
+              ▲ AI Suggestion: {{ scenario.ai_suggested_rop_pct | int }}%
+            </div>
           </div>
         </div>
 
@@ -216,16 +215,15 @@
                  step="1"
                  data-display="ss-display"
                  data-ai="{{ scenario.ai_suggested_ss_pct | int }}">
-          <div class="slider-markers">
-            <span>{{ scenario.slider_ss_range[0] | int }}%</span>
-            <span class="ai-marker" id="ss-ai-marker">
-              ▲ AI: {{ scenario.ai_suggested_ss_pct | int }}%
-            </span>
-            <span>{{ scenario.slider_ss_range[1] | int }}%</span>
-          </div>
-          <div class="slider-context">
-            Current SS: {{ scenario.baseline_inventory.ss | int }} units →
-            New SS: <strong id="ss-abs">{{ (scenario.baseline_inventory.ss * (1 + scenario.ai_suggested_ss_pct / 100)) | int }}</strong> units
+          
+          <div class="slider-context" style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 0.75rem; color: var(--text-muted);">
+              Baseline: {{ scenario.baseline_inventory.ss | int }} &nbsp;→&nbsp;
+              New absolute: <strong id="ss-abs" style="color: var(--text-primary);">{{ (scenario.baseline_inventory.ss * (1 + scenario.ai_suggested_ss_pct / 100)) | int }}</strong>
+            </div>
+            <div class="ai-marker" id="ss-ai-marker">
+              ▲ AI Suggestion: {{ scenario.ai_suggested_ss_pct | int }}%
+            </div>
           </div>
         </div>
 
@@ -237,7 +235,7 @@
           <div class="likert-scale">
             {% for i in range(1, 8) %}
             <label class="likert-item">
-              <input type="radio" name="confidence" value="{{ i }}"
+              <input type="radio" name="confidence" class="likert-val-{{ i }}" value="{{ i }}"
                      {% if i == 4 %}checked{% endif %}>
               <span class="likert-num">{{ i }}</span>
             </label>
