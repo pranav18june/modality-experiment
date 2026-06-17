@@ -1072,3 +1072,14 @@ textarea { resize: vertical; min-height: 80px; }
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
 }
+
+/* Cat paw custom hover cursor */
+.btn:hover,
+.btn-exit:hover,
+input[type="submit"]:hover,
+button:hover,
+a.btn:hover,
+#theme-toggle:hover {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' style='font-size:16px'><text y='16'>🐾</text></svg>") 0 16, pointer !important;
+}
+

@@ -46,8 +46,10 @@
             <span class="progress-label">{{ lbl }}</span>
             <span class="progress-pct">{{ pct }}%</span>
           </div>
-          <div class="progress-track">
-            <div class="progress-fill" style="width: {{ pct }}%;"></div>
+          <div class="progress-track" style="overflow: visible;">
+            <div class="progress-fill" style="width: {{ pct }}%; position: relative;">
+              <span style="position: absolute; right: -8px; top: -14px; font-size: 1.1rem; user-select: none;">🐈</span>
+            </div>
           </div>
         </div>
         <a href="/" class="btn-exit" onclick="return confirm('Are you sure you want to exit the study? This will forfeit your completion reward.');">Exit study</a>
