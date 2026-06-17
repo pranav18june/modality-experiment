@@ -86,6 +86,71 @@
     </div>
   </div>
 
+  <div class="admin-actions">
+    <h2>Live Visualizations</h2>
+    {% if summary.completed > 0 %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;">
+      <div class="info-box" style="padding: 10px; text-align: center;"><div id="chart-gender"></div></div>
+      <div class="info-box" style="padding: 10px; text-align: center;"><div id="chart-program"></div></div>
+      <div class="info-box" style="padding: 10px; text-align: center;"><div id="chart-modality"></div></div>
+      <div class="info-box" style="padding: 10px; text-align: center;"><div id="chart-comp"></div></div>
+    </div>
+    {% else %}
+    <div class="info-box"><p>No completed participant data available to visualize.</p></div>
+    {% endif %}
+  </div>
+
   {% endif %}
 </div>
+
+{% if auth and summary.completed > 0 %}
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<script>
+  const visData = {{ vis_data | tojson | safe }};
+  if (visData && Object.keys(visData).length > 0) {
+      const layoutBase = {
+          paper_bgcolor: 'transparent',
+          plot_bgcolor:  'transparent',
+          font: {color: '#94a3b8'},
+          margin: {t: 40, b: 30, l: 30, r: 30}
+      };
+      const cfg = {responsive: true, displayModeBar: false};
+
+      Plotly.newPlot('chart-gender', [{
+          labels: visData.gender.labels,
+          values: visData.gender.values,
+          type: 'pie', hole: 0.4,
+          marker: {colors: ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6']}
+      }], {...layoutBase, title: {text: 'Gender Distribution', font: {color: '#f8fafc'}}}, cfg);
+
+      Plotly.newPlot('chart-program', [{
+          labels: visData.program.labels,
+          values: visData.program.values,
+          type: 'pie', hole: 0.4,
+          marker: {colors: ['#10b981', '#f59e0b', '#3b82f6', '#ef4444', '#8b5cf6']}
+      }], {...layoutBase, title: {text: 'Program Distribution', font: {color: '#f8fafc'}}}, cfg);
+
+      Plotly.newPlot('chart-modality', [{
+          labels: visData.modality_pref.labels,
+          values: visData.modality_pref.values,
+          type: 'pie', hole: 0.4,
+          marker: {colors: ['#8b5cf6', '#ef4444', '#3b82f6', '#10b981', '#f59e0b']}
+      }], {...layoutBase, title: {text: 'Preferred Format (Q5)', font: {color: '#f8fafc'}}}, cfg);
+
+      if(visData.comp_scores && visData.comp_scores.labels.length > 0) {
+          Plotly.newPlot('chart-comp', [{
+              x: visData.comp_scores.labels,
+              y: visData.comp_scores.values,
+              type: 'bar',
+              marker: {color: '#ef4444'}
+          }], {
+              ...layoutBase, 
+              title: {text: 'Comprehension Accuracy (%)', font: {color: '#f8fafc'}},
+              yaxis: {range: [0, 100], gridcolor: '#334155'},
+              xaxis: {tickangle: -15}
+          }, cfg);
+      }
+  }
+</script>
+{% endif %}
 {% endblock %}

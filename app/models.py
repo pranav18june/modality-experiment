@@ -506,3 +506,76 @@ def admin_summary() -> dict:
         "group_b":            _n("group_b"),
         "total_responses":    total_resp,
     }
+
+
+def get_visualization_data() -> dict:
+    """Return aggregated data for admin visualisations."""
+    pipeline = [
+        {"$match": {"progress.completed": True}},
+        {"$facet": {
+            "gender": [
+                {"$group": {"_id": "$demographics.gender", "count": {"$sum": 1}}}
+            ],
+            "program": [
+                {"$group": {"_id": "$demographics.program", "count": {"$sum": 1}}}
+            ],
+            "year_of_study": [
+                {"$group": {"_id": "$demographics.year_of_study", "count": {"$sum": 1}}}
+            ],
+            "ai_familiarity": [
+                {"$group": {"_id": "$demographics.ai_familiarity", "count": {"$sum": 1}}}
+            ],
+            "sc_exposure": [
+                {"$group": {"_id": "$demographics.sc_exposure", "count": {"$sum": 1}}}
+            ],
+            "modality_pref": [
+                {"$group": {"_id": "$comprehension.answers.item_5", "count": {"$sum": 1}}}
+            ],
+            "comp_scores": [
+                {"$group": {
+                    "_id": None,
+                    "item_1_correct": {"$sum": {"$cond": ["$comprehension.scores.item_1_correct", 1, 0]}},
+                    "item_2_correct": {"$sum": {"$cond": ["$comprehension.scores.item_2_correct", 1, 0]}},
+                    "item_4_correct": {"$sum": {"$cond": ["$comprehension.scores.item_4_correct", 1, 0]}},
+                    "total": {"$sum": 1}
+                }}
+            ]
+        }}
+    ]
+    
+    result = list(_col().aggregate(pipeline))
+    if not result:
+        return {}
+        
+    data = result[0]
+    
+    def format_facet(facet_name):
+        return {
+            "labels": [str(d["_id"]).title().replace('_', ' ') if d["_id"] else "Unknown" for d in data.get(facet_name, [])],
+            "values": [d["count"] for d in data.get(facet_name, [])]
+        }
+        
+    vis_data = {
+        "gender": format_facet("gender"),
+        "program": format_facet("program"),
+        "year_of_study": format_facet("year_of_study"),
+        "ai_familiarity": format_facet("ai_familiarity"),
+        "sc_exposure": format_facet("sc_exposure"),
+        "modality_pref": format_facet("modality_pref"),
+        "comp_scores": {"labels": [], "values": []}
+    }
+    
+    if data.get("comp_scores") and len(data["comp_scores"]) > 0:
+        cs = data["comp_scores"][0]
+        total = cs["total"]
+        if total > 0:
+            vis_data["comp_scores"] = {
+                "labels": ["Q1 (Disruption)", "Q2 (Threshold)", "Q4 (Safety Stock)"],
+                "values": [
+                    round((cs["item_1_correct"] / total) * 100, 1),
+                    round((cs["item_2_correct"] / total) * 100, 1),
+                    round((cs["item_4_correct"] / total) * 100, 1)
+                ]
+            }
+            
+    return vis_data

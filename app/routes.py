@@ -330,10 +330,12 @@ def admin():
         return render_template("admin.html", auth=False, error=True, summary=None)
 
     if not session.get("admin_auth"):
-        return render_template("admin.html", auth=False, error=False, summary=None)
+        return render_template("admin.html", auth=False, error=False, summary=None, vis_data=None)
 
+    from .models import admin_summary, get_visualization_data
     summary = admin_summary()
-    return render_template("admin.html", auth=True, error=False, summary=summary)
+    vis_data = get_visualization_data()
+    return render_template("admin.html", auth=True, error=False, summary=summary, vis_data=vis_data)
 
 
 @bp.route("/admin/export/responses")
