@@ -75,7 +75,11 @@ def _get_client() -> MongoClient:
             "MONGO_URI environment variable is not set. "
             "Add it to your .env file or Vercel environment variables."
         )
-    return MongoClient(uri, serverSelectionTimeoutMS=5000)
+    return MongoClient(
+        uri, 
+        serverSelectionTimeoutMS=5000, 
+        maxIdleTimeMS=10000  # Prevent AWS/Vercel from dropping idle connections
+    )
 
 
 def _db():
