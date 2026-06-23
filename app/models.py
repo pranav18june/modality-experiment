@@ -177,6 +177,7 @@ def _flatten_doc(doc: dict) -> dict:
         "sc_exposure":        demo.get("sc_exposure"),
         "ai_familiarity":     demo.get("ai_familiarity"),
         "gender":             demo.get("gender"),
+        "age":                demo.get("age"),
         # Scenario orders (as JSON strings to match old behaviour)
         "scenario_order_s1":  json.dumps(orders.get("stage1", STAGE_SCENARIOS[1])),
         "scenario_order_s2":  json.dumps(orders.get("stage2", STAGE_SCENARIOS[2])),
@@ -223,6 +224,7 @@ def update_demographics(pid: str, data: dict):
             "demographics.sc_exposure":    data.get("sc_exposure"),
             "demographics.ai_familiarity": data.get("ai_familiarity"),
             "demographics.gender":         data.get("gender"),
+            "demographics.age":            data.get("age"),
         }},
     )
 
@@ -388,7 +390,7 @@ def export_responses_csv() -> str:
     writer  = None
     headers = [
         "participant_id", "session_token", "group_assignment",
-        "program", "year_of_study", "sc_exposure", "ai_familiarity", "gender",
+        "program", "year_of_study", "sc_exposure", "ai_familiarity", "gender", "age",
         "tutorial_passed", "completed",
         "scenario_id", "stage", "position_in_stage", "modality",
         "rop_adjustment", "ss_adjustment", "confidence",
@@ -406,6 +408,7 @@ def export_responses_csv() -> str:
         sc_exp     = demo.get("sc_exposure", "")
         ai_fam     = demo.get("ai_familiarity", "")
         gender     = demo.get("gender", "")
+        age        = demo.get("age", "")
         tut_passed = 1 if progress.get("tutorial_passed") else 0
         completed  = 1 if progress.get("completed") else 0
 
@@ -419,6 +422,7 @@ def export_responses_csv() -> str:
                 "sc_exposure":           sc_exp,
                 "ai_familiarity":        ai_fam,
                 "gender":                gender,
+                "age":                   age,
                 "tutorial_passed":       tut_passed,
                 "completed":             completed,
                 "scenario_id":           r.get("scenario_id"),
@@ -448,7 +452,7 @@ def export_participants_csv() -> str:
     writer  = None
     headers = [
         "participant_id", "group_assignment", "program", "year_of_study",
-        "sc_exposure", "ai_familiarity", "gender",
+        "sc_exposure", "ai_familiarity", "gender", "age",
         "tutorial_passed", "completed", "created_at", "completed_at",
         "comp_item_1", "comp_item_2", "comp_item_3", "comp_item_4", "comp_item_5", "comp_item_5_reason",
         "comp_score_1", "comp_score_2", "comp_score_4",
@@ -472,6 +476,7 @@ def export_participants_csv() -> str:
             "sc_exposure":      demo.get("sc_exposure", ""),
             "ai_familiarity":   demo.get("ai_familiarity", ""),
             "gender":           demo.get("gender", ""),
+            "age":              demo.get("age", ""),
             "tutorial_passed":  1 if progress.get("tutorial_passed") else 0,
             "completed":        1 if progress.get("completed") else 0,
             "created_at":       doc.get("created_at", ""),

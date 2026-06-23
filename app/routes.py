@@ -116,6 +116,7 @@ def consent():
             "sc_exposure":   request.form.get("sc_exposure"),
             "ai_familiarity":request.form.get("ai_familiarity"),
             "gender":        request.form.get("gender"),
+            "age":           request.form.get("age"),
         })
 
         session["pid"]               = pid
