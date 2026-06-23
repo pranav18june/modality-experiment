@@ -28,13 +28,13 @@
         <div class="likert-scale">
           {% for i in range(1, 8) %}
           <label class="likert-item">
-            <input type="radio" name="trust_1" value="{{ i }}" {% if i == 4 %}checked{% endif %} required>
-            <span class="likert-num">{{ i }}</span>
+            <input type="radio" name="trust_1" value="{{ i }}" class="likert-radio likert-val-{{ i }}" required>
+            <span class="likert-btn">{{ i }}</span>
           </label>
           {% endfor %}
         </div>
         <div class="likert-anchors">
-          <span>Strongly Disagree</span><span>Neutral</span><span>Strongly Agree</span>
+          <span>Strongly Disagree</span><span class="neutral-anchor">Neutral</span><span>Strongly Agree</span>
         </div>
       </div>
 
@@ -43,13 +43,13 @@
         <div class="likert-scale">
           {% for i in range(1, 8) %}
           <label class="likert-item">
-            <input type="radio" name="trust_2" value="{{ i }}" {% if i == 4 %}checked{% endif %} required>
-            <span class="likert-num">{{ i }}</span>
+            <input type="radio" name="trust_2" value="{{ i }}" class="likert-radio likert-val-{{ i }}" required>
+            <span class="likert-btn">{{ i }}</span>
           </label>
           {% endfor %}
         </div>
         <div class="likert-anchors">
-          <span>Strongly Disagree</span><span>Neutral</span><span>Strongly Agree</span>
+          <span>Strongly Disagree</span><span class="neutral-anchor">Neutral</span><span>Strongly Agree</span>
         </div>
       </div>
 
@@ -58,13 +58,13 @@
         <div class="likert-scale">
           {% for i in range(1, 8) %}
           <label class="likert-item">
-            <input type="radio" name="trust_3" value="{{ i }}" {% if i == 4 %}checked{% endif %} required>
-            <span class="likert-num">{{ i }}</span>
+            <input type="radio" name="trust_3" value="{{ i }}" class="likert-radio likert-val-{{ i }}" required>
+            <span class="likert-btn">{{ i }}</span>
           </label>
           {% endfor %}
         </div>
         <div class="likert-anchors">
-          <span>Strongly Disagree</span><span>Neutral</span><span>Strongly Agree</span>
+          <span>Strongly Disagree</span><span class="neutral-anchor">Neutral</span><span>Strongly Agree</span>
         </div>
       </div>
     </div>

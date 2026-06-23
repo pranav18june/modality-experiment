@@ -90,9 +90,8 @@
 
   </form>
 <div id="loading-overlay">
-  <div class="loading-title">Submitting...</div>
-  <img src="{{ url_for('static', filename='img/cat_eating.png') }}" class="loading-img" alt="Cat eating food"/>
-  <div class="loading-caption">The cat is having her food. Please wait for a while...</div>
+  <div class="loading-title">Submitting Responses...</div>
+  <div class="loading-caption">Please wait while we process your data.</div>
 </div>
 
 <script>
@@ -106,10 +105,10 @@ document.getElementById('comp-form').addEventListener('submit', function(e) {
   // Show the loading overlay
   document.getElementById('loading-overlay').classList.add('active');
   
-  // Wait 3 seconds to let the user see the cute cat animation
+  // Small delay for UX
   setTimeout(() => {
     form.submit();
-  }, 3000);
+  }, 800);
 });
 
 // ── Comprehension charts ─────────────────────────────────────────────

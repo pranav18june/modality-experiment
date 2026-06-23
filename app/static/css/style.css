@@ -660,46 +660,109 @@ textarea { resize: vertical; min-height: 80px; }
 .confidence-label   { font-size: 0.88rem; font-weight: 600; display: block; margin-bottom: 10px; }
 
 .likert-scale {
-  display: flex; justify-content: space-between;
-  gap: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  gap: 8px;
+  margin: 10px 0;
 }
+
+/* Background line connecting the circles */
+.likert-scale::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 30px;
+  right: 30px;
+  height: 4px;
+  background: var(--border-light);
+  z-index: 0;
+  transform: translateY(-50%);
+  border-radius: 2px;
+}
+
 .likert-item {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; cursor: pointer;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  z-index: 1;
 }
+
 .likert-item input[type="radio"] { display: none; }
-.likert-num {
-  width: 100%; text-align: center;
-  padding: 9px 4px;
-  background: var(--bg-input); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); font-size: 0.85rem;
-  font-weight: 600; color: var(--text-secondary);
-  transition: transform 0.15s, background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+
+.likert-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.likert-item:hover .likert-btn {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 /* Likert Gradients (Cool to Warm) */
-.likert-val-1:checked + .likert-num { background: #3b82f6; border-color: #3b82f6; color: #fff; box-shadow: 0 4px 10px rgba(59,130,246,0.3); transform: translateY(-2px); }
-.likert-val-2:checked + .likert-num { background: #6366f1; border-color: #6366f1; color: #fff; box-shadow: 0 4px 10px rgba(99,102,241,0.3); transform: translateY(-2px); }
-.likert-val-3:checked + .likert-num { background: #8b5cf6; border-color: #8b5cf6; color: #fff; box-shadow: 0 4px 10px rgba(139,92,246,0.3); transform: translateY(-2px); }
-.likert-val-4:checked + .likert-num { background: #a855f7; border-color: #a855f7; color: #fff; box-shadow: 0 4px 10px rgba(168,85,247,0.3); transform: translateY(-2px); }
-.likert-val-5:checked + .likert-num { background: #d946ef; border-color: #d946ef; color: #fff; box-shadow: 0 4px 10px rgba(217,70,239,0.3); transform: translateY(-2px); }
-.likert-val-6:checked + .likert-num { background: #f43f5e; border-color: #f43f5e; color: #fff; box-shadow: 0 4px 10px rgba(244,63,94,0.3); transform: translateY(-2px); }
-.likert-val-7:checked + .likert-num { background: #ef4444; border-color: #ef4444; color: #fff; box-shadow: 0 4px 10px rgba(239,68,68,0.3); transform: translateY(-2px); }
-
-.likert-item:hover .likert-num { border-color: var(--text-muted); color: var(--text-primary); transform: translateY(-1px); }
+.likert-val-1:checked + .likert-btn { background: #3b82f6; border-color: #3b82f6; color: #fff; box-shadow: 0 6px 16px rgba(59,130,246,0.3); transform: scale(1.15); }
+.likert-val-2:checked + .likert-btn { background: #6366f1; border-color: #6366f1; color: #fff; box-shadow: 0 6px 16px rgba(99,102,241,0.3); transform: scale(1.15); }
+.likert-val-3:checked + .likert-btn { background: #8b5cf6; border-color: #8b5cf6; color: #fff; box-shadow: 0 6px 16px rgba(139,92,246,0.3); transform: scale(1.15); }
+.likert-val-4:checked + .likert-btn { background: #a855f7; border-color: #a855f7; color: #fff; box-shadow: 0 6px 16px rgba(168,85,247,0.3); transform: scale(1.15); }
+.likert-val-5:checked + .likert-btn { background: #d946ef; border-color: #d946ef; color: #fff; box-shadow: 0 6px 16px rgba(217,70,239,0.3); transform: scale(1.15); }
+.likert-val-6:checked + .likert-btn { background: #f43f5e; border-color: #f43f5e; color: #fff; box-shadow: 0 6px 16px rgba(244,63,94,0.3); transform: scale(1.15); }
+.likert-val-7:checked + .likert-btn { background: #ef4444; border-color: #ef4444; color: #fff; box-shadow: 0 6px 16px rgba(239,68,68,0.3); transform: scale(1.15); }
 
 .likert-anchors {
-  display: flex; justify-content: space-between;
-  font-size: 0.68rem; color: var(--text-muted); margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-top: 14px;
+  padding: 0 10px;
 }
-.likert-anchors span:nth-child(2) { text-align: center; flex: 1; }
+
+.neutral-anchor {
+  text-align: center;
+  flex: 1;
+}
 
 /* Trust section */
-.trust-section { margin: 24px 0; }
-.trust-intro   { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; }
-.trust-item    { margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid var(--border-light); }
-.trust-item:last-child { border-bottom: none; }
-.trust-item label { font-size: 0.9rem; display: block; margin-bottom: 12px; }
+.trust-section { margin: 32px 0; }
+.trust-intro   { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 28px; font-weight: 500; }
+.trust-item {
+  background: var(--bg-card);
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  transition: box-shadow 0.2s;
+}
+.trust-item:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+.trust-item:last-child { margin-bottom: 0; }
+.trust-item label {
+  display: block;
+  font-size: 1.05rem;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
 
 /* ══════════════════════════════════════════════════════════════
    COMPREHENSION CHECK
@@ -1073,13 +1136,5 @@ textarea { resize: vertical; min-height: 80px; }
   50% { transform: translateY(-10px); }
 }
 
-/* Cat paw custom hover cursor */
-.btn:hover,
-.btn-exit:hover,
-input[type="submit"]:hover,
-button:hover,
-a.btn:hover,
-#theme-toggle:hover {
-  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' style='font-size:16px'><text y='16'>🐾</text></svg>") 0 16, pointer !important;
-}
+
 
